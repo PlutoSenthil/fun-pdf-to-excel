@@ -1,561 +1,390 @@
-# app_streamlit.py
-# Bank PDF -> Excel via Camelot (lattice) using your exact logic, wrapped in Streamlit UI.
-# Features:
-# - Upload PDF
-# - Preview first N pages (1–3) as images
-# - Enter page ranges like "1-50" or "all"
-# - Convert -> Download Excel
-# - Cr/Dr + commas + whitespace handling (same as your notebook)
-# - Excel formatting: freeze top row, auto-filter, auto column width
-# - Clean logging and clear error messages
-# - Streamlit deprecation fixed (use width='stretch'), Arrow JSON-safe preview
-# - UI tweaks:
-#     - Convert button appears after preview
-#     - Preview count default = 1
-#     - Logs hidden by default, shown only if content exists
-#     - After Convert: per-page extraction summary (tables/rows/cols), totals, and warnings
-
-import io
-import os
-import re
-import sys
-import time
-import tempfile
-import logging
-from typing import Dict, List, Tuple, Any
-
-import numpy as np
-import pandas as pd
-import camelot
-import fitz  # PyMuPDF
-from PIL import Image
+# app.py
 import streamlit as st
+import pandas as pd
+import numpy as np
+import io, os, re
+from pathlib import Path
+from datetime import datetime
+from dateutil import parser as dparser
 
+import fitz  # PyMuPDF
+import pdfplumber
 
-# ----------------------------
-# Logging setup (buffered)
-# ----------------------------
-log_stream = io.StringIO()
-logger = logging.getLogger("bank_pdf_to_excel")
-logger.setLevel(logging.INFO)
-handler = logging.StreamHandler(log_stream)
-formatter = logging.Formatter("%(levelname)s: %(message)s")
-handler.setFormatter(formatter)
-# Avoid duplicate handlers on reruns
-if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
-    logger.addHandler(handler)
+# Digital table tools
+import camelot
 
+# OCR stack (soft optional)
+import pytesseract
+from pdf2image import convert_from_path
+from PIL import Image
 
-# ----------------------------
-# Utility functions (your logic)
-# ----------------------------
-def parse_pages_arg(pages: str) -> List[int]:
-    """
-    Parse a pages string like "3,5-7" into a sorted list: [3,5,6,7].
-    """
-    pgs = set()
-    for part in pages.split(","):
-        part = part.strip()
-        if not part:
-            continue
-        if "-" in part:
-            a, b = part.split("-", 1)
-            for x in range(int(a), int(b) + 1):
-                pgs.add(x)
-        else:
-            pgs.add(int(part))
-    return sorted(pgs)
+# Optional (better tables for scanned)
+try:
+    from paddleocr import PPStructure
+    HAVE_PADDLE = True
+except Exception:
+    HAVE_PADDLE = False
 
+# ---------- Simple config ----------
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
 
-def clean_and_convert_to_numeric(series: pd.Series) -> pd.Series:
-    """
-    Clean Debits/Credits-like columns:
-    - strip, remove commas
-    - remove trailing Cr/Dr (case-insensitive)
-    - convert to numeric
-    """
-    series = series.astype(str).str.strip()
-    series = series.str.replace(",", "", regex=False)
-    series = series.str.replace(r"\s*(Cr|Dr)\s*$", "", regex=True, flags=re.IGNORECASE)
-    return pd.to_numeric(series, errors="coerce")
+st.set_page_config(page_title="Bank Statement Extractor (Simple MVP)", layout="wide")
+st.title("🏦 Simple Multi‑Bank Statement Extractor (India) – MVP")
 
+# ---------- Helpers ----------
 
-def detect_scanned_pages(pdf_path: str, pages_list: List[int]) -> Tuple[List[int], int]:
-    """
-    Uses PyMuPDF to check if pages likely scanned (by text length).
-    Returns (scanned_pages, total_pages)
-    """
-    doc = fitz.open(pdf_path)
-    total = len(doc)
-    scanned = []
-    for p in pages_list:
-        if not (1 <= p <= total):
-            continue
-        page_idx = p - 1
-        text_len = len((doc.load_page(page_idx).get_text("text") or "").strip())
-        if text_len < 60:
-            scanned.append(p)
-    return scanned, total
-
-
-def extract_tables_with_meta(pdf_path: str, pages_str: str) -> Tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    EXACT SAME Camelot parameters as before; we only add meta instrumentation.
-    Returns:
-        - concatenated DataFrame across all tables
-        - meta dict with per-page stats and timings
-    """
-    meta: Dict[str, Any] = {
-        "pages_str": pages_str,
-        "tables_count": 0,
-        "per_page": {},   # page -> {"tables": int, "shapes": [(r,c), ...]}
-        "duration_sec": 0.0,
-        "warnings": [],
-        "info": [],
-    }
-
-    logger.info(f"Attempting to read tables from: {pdf_path}")
-    t0 = time.time()
+def is_scanned_pdf(path: str, text_thresh: int = 200) -> bool:
+    """Heuristic: if pretty much no extractable text across pages → scanned."""
     try:
-        tables = camelot.read_pdf(
-            pdf_path,
-            pages=pages_str,
-            flavor="lattice",
-            table_areas=None,   # auto-detect
-            strip_text="\n",
-            line_scale=40,
-            use_fallback=True,
-            joint_tol=3,
-            line_tol=2,
-            backend="ghostscript",
-        )
-        if not tables or tables.n == 0:
-            w = "No tables detected by Camelot. PDF may be scanned (image)."
-            logger.warning(w)
-            meta["warnings"].append(w)
-            meta["duration_sec"] = time.time() - t0
-            return pd.DataFrame(), meta
-    except Exception as e:
-        err = f"Camelot extraction error: {e}"
-        logger.error(err)
-        if "No module named 'ghostscript'" in str(e):
-            gs_msg = "Ghostscript is required by Camelot lattice backend but missing."
-            logger.error(gs_msg)
-            meta["warnings"].append(gs_msg)
-        meta["warnings"].append(str(e))
-        meta["duration_sec"] = time.time() - t0
-        return pd.DataFrame(), meta
+        doc = fitz.open(path)
+        cnt = 0
+        for page in doc:
+            cnt += len(page.get_text("text"))
+            if cnt >= text_thresh:
+                return False
+        return True
+    except Exception:
+        return False
 
-    meta["duration_sec"] = time.time() - t0
-    meta["tables_count"] = tables.n
-    logger.info(f"Detected {tables.n} table(s) in document.")
+AMOUNT_JUNK = re.compile(r'[^\d\-\.,()]')
 
-    all_dataframes = []
-    # Collect per-page stats
-    per_page: Dict[int, Dict[str, Any]] = {}
+def parse_amount(s):
+    if s is None:
+        return None
+    s = str(s)
+    if s.strip() in ["", "-", "—", "None", "nan"]:
+        return None
+    # Remove currency/suffix noise
+    s = s.replace("₹", "").replace("INR", "").replace("Cr", "").replace("CR", "").replace("Dr", "").replace("DR", "")
+    s = AMOUNT_JUNK.sub("", s).replace(",", "")
+    if s.strip() == "":
+        return None
+    neg = "(" in s and ")" in s
+    s = s.replace("(", "").replace(")", "")
+    try:
+        val = float(s)
+        return -val if neg else val
+    except Exception:
+        return None
 
-    for i, table in enumerate(tables):
-        df = table.df
-        all_dataframes.append(df)
+MONTHS = {
+    'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,'jul':7,'aug':8,'sep':9,'oct':10,'nov':11,'dec':12
+}
 
-        # table.page may be int or str depending on version; coerce to int when possible
+def normalize_date(s):
+    s = (s or "").strip()
+    if not s:
+        return s
+    # Fast paths for Indian formats
+    for fmt in ["%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%d/%m/%y", "%d-%b-%Y", "%d-%b-%y", "%d %b %Y", "%d %B %Y"]:
         try:
-            page_no = int(getattr(table, "page", None) or table.parsing_report.get("page", 0) or 0)
+            dt = datetime.strptime(s, fmt)
+            return dt.strftime("%d/%m/%Y")
         except Exception:
-            page_no = 0
+            pass
+    # Generic fuzzy parse (last resort)
+    try:
+        dt = dparser.parse(s, dayfirst=True, fuzzy=True)
+        return dt.strftime("%d/%m/%Y")
+    except Exception:
+        return s  # leave as-is
 
-        shape = (df.shape[0], df.shape[1])
-        page_bucket = per_page.setdefault(page_no, {"tables": 0, "shapes": []})
-        page_bucket["tables"] += 1
-        page_bucket["shapes"].append(shape)
+# Column candidates (wide coverage for Indian banks)
+DATE_COLS   = ['date', 'txn date', 'transaction date', 'value date', 'posting date']
+DESC_COLS   = ['description', 'narration', 'particulars', 'remarks', 'details', 'transaction details']
+REF_COLS    = ['chq no', 'cheque no', 'cheque no.', 'ref no', 'reference no', 'reference', 'utr', 'upi', 'transaction id', 'instrument no', 'ref']
+DEBIT_COLS  = ['debit', 'withdrawal', 'withdrawals', 'dr', 'amount dr', 'withdrawal (dr)']
+CREDIT_COLS = ['credit', 'deposit', 'deposits', 'cr', 'amount cr', 'deposit (cr)']
+BAL_COLS    = ['balance', 'running balance', 'closing balance', 'balance amount', 'avail balance', 'available balance']
 
-        logger.info(f"Processed table {i+1} (page {page_no}). Shape: {df.shape}")
+def pick_col(cols, candidates):
+    cols_l = [c.lower().strip() for c in cols]
+    for idx, c in enumerate(cols_l):
+        for can in candidates:
+            if c == can or c.startswith(can):
+                return list(cols)[idx]
+    return None
 
-    meta["per_page"] = per_page
-
-    if not all_dataframes:
-        return pd.DataFrame(), meta
-
-    final_df = pd.concat(all_dataframes, ignore_index=True)
-    return final_df, meta
-
-
-def finalize_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Applies the same post-processing steps as your notebook:
-    - drop duplicates
-    - replace '' with NA
-    - drop empty rows
-    - use first row as header
-    - convert numeric-ish columns (Debit/Credit/Balance/Withdrawal/Deposit)
-    """
-    if raw_df.empty:
-        return raw_df
-
-    df = raw_df.copy()
-    df = df.drop_duplicates(keep="first")
-    df = df.replace("", pd.NA)
-    df = df.dropna(axis=0, how="all")
-
-    # Guard: ensure we have at least 1 row for header
-    if len(df) == 0:
-        return df
-
-    # First row is header
-    df.columns = df.iloc[0]
-    df = df.iloc[1:].reset_index(drop=True)
-
-    # Convert numeric columns by name contains any of these keywords
-    numeric_cols = ["Debit", "Credit", "Balance", "Withdrawal", "Deposit"]
-    for col in df.columns:
-        if any(word.lower() in str(col).lower() for word in numeric_cols):
-            df.loc[:, col] = clean_and_convert_to_numeric(df[col])
-
+def clean_df(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame()
+    df = df.copy()
+    df.columns = [str(c).strip().lower() for c in df.columns]
+    df = df.loc[:, ~df.columns.duplicated(keep="first")]
+    df = df.dropna(how="all").reset_index(drop=True)
+    for c in df.columns:
+        df[c] = df[c].astype(str).str.replace("\n", " ").str.strip()
     return df
 
-
-def df_to_excel_bytes(
-    df: pd.DataFrame,
-    sheet_name: str = "Sheet1",
-    freeze_panes: Tuple[int, int] = (1, 0),
-    add_autofilter: bool = True,
-    min_width: int = 8,
-    max_width: int = 60,
-    padding: int = 2,
-) -> bytes:
-    """
-    Write DataFrame to Excel in-memory with:
-    - freeze top row
-    - auto-filter
-    - auto column widths based on content length
-    """
-    output = io.BytesIO()
-    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, sheet_name=sheet_name, index=False)
-        workbook = writer.book
-        worksheet = writer.sheets[sheet_name]
-
-        # Freeze panes (1st row)
-        if freeze_panes:
-            worksheet.freeze_panes(*freeze_panes)
-
-        # Auto filter on header row
-        if add_autofilter and not df.empty:
-            last_row = len(df)
-            last_col = len(df.columns) - 1
-            worksheet.autofilter(0, 0, last_row, last_col)
-
-        # Auto-fit widths (approximate, based on string length)
-        # NOTE: Use positional indexing to ALWAYS get a Series (handles duplicate column names)
-        for idx in range(len(df.columns)):
-            col_name = df.columns[idx]
-            col_series = df.iloc[:, idx]  # guaranteed Series
-            series_as_str = col_series.astype(str)
-
-            # Treat "nan" and "None" as empty for width purposes
-            series_as_str = series_as_str.replace({"nan": "", "None": ""})
-
-            # Compute width: max(len(header), max(len(value))) + padding
-            try:
-                values_len = [len(s) for s in series_as_str.tolist()]
-            except Exception:
-                # Fallback just in case some exotic dtype sneaks in
-                values_len = [len(str(s)) for s in series_as_str]
-
-            max_len = max([len(str(col_name))] + values_len) + padding
-            width = max(min_width, min(max_len, max_width))
-            worksheet.set_column(idx, idx, width)
-
-    output.seek(0)
-    return output.read()
-
-
-def render_page_image(pdf_path: str, page_number: int, dpi: int = 150) -> Image.Image:
-    """
-    Render a PDF page to a PIL Image using PyMuPDF.
-    """
-    doc = fitz.open(pdf_path)
-    if not (1 <= page_number <= len(doc)):
-        raise ValueError(f"Page {page_number} out of range (1..{len(doc)})")
-    page = doc.load_page(page_number - 1)
-    zoom = dpi / 72.0
-    mat = fitz.Matrix(zoom, zoom)
-    pix = page.get_pixmap(matrix=mat, alpha=False)
-    img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-    return img
-
-
-def make_display_safe(df: pd.DataFrame, preview_rows: int = 50) -> pd.DataFrame:
-    """
-    Return a preview DataFrame that is safe for Streamlit/PyArrow:
-    - Ensure column names are strings
-    - De-duplicate column names (Arrow requires unique field names)
-    - Reset index to a simple RangeIndex
-    - Convert preview rows to strings (display-only)
-    """
-    if df is None or df.empty:
-        return df
-
-    preview = df.head(preview_rows).copy()
-
-    # 1) Ensure string column names
-    cols = ["" if c is None else str(c) for c in preview.columns]
-
-    # 2) De-duplicate column names (A, A -> A, A__2, A__3, ...)
-    seen = {}
-    unique_cols = []
-    for c in cols:
-        if c in seen:
-            seen[c] += 1
-            unique_cols.append(f"{c}__{seen[c]}")
+def merge_wrapped_rows(df, date_col, debit_col, credit_col, bal_col):
+    """Rows without date/amount/balance extend the previous narration."""
+    out = []
+    buffer = None
+    for _, r in df.iterrows():
+        def has(x):
+            s = str(x).strip().lower()
+            return s not in ["", "-", "nan", "none", "—"]
+        is_cont = not has(r.get(date_col)) and not has(r.get(debit_col)) and not has(r.get(credit_col)) and not has(r.get(bal_col))
+        if is_cont and buffer is not None:
+            # Append continuation into description-like fields
+            joiner = ' ' + ' '.join([str(v) for v in r.values if str(v).strip() not in ["", "-", "nan", "none"]])
+            buffer[1][buffer[0]['desc_col']] = (str(buffer[1].get(buffer[0]['desc_col'], "")) + " " + joiner).strip()
         else:
-            seen[c] = 1
-            unique_cols.append(c)
-    preview.columns = unique_cols
+            meta = {'desc_col': pick_col(df.columns, DESC_COLS) or (df.columns[1] if len(df.columns) > 1 else df.columns[0])}
+            buffer = (meta, r)
+            out.append(buffer)
+    # return DataFrame
+    rows = [r for _, r in out]
+    return pd.DataFrame(rows).reset_index(drop=True)
 
-    # 3) Simple RangeIndex to avoid multiindex/odd types in index
-    preview.index = range(len(preview))
-
-    # 4) Stringify values for safe JSON/Arrow metadata
-    preview = preview.astype(str)
-
-    return preview
-def get_log_text() -> str:
-    """Return current logs text (if any)."""
-    return log_stream.getvalue().strip()
-
-
-# ----------------------------
-# Streamlit UI
-# ----------------------------
-st.set_page_config(page_title="PDF → Excel (Camelot)", layout="centered")
-
-st.title("PDF → Excel")
-st.caption("Camelot (lattice) + PyMuPDF • Streamlit UI")
-
-with st.expander("How it works", expanded=False):
-    st.markdown(
-        """
-- **Upload** a bank statement PDF.
-- **Preview** the first 1–3 pages as images.
-- Enter **pages** like `1-50`, `3,5-7`, or `all`.
-- Click **Convert** to generate an Excel with:
-  - Top row frozen
-  - Header auto-filter
-  - Column widths auto-fit to content
-- **Cr/Dr**, commas, and whitespace in numeric-like columns are **cleaned** exactly as in your notebook.
-        """
-    )
-
-uploaded = st.file_uploader("Upload PDF", type=["pdf"])
-
-# Default preview_count set to 1 per your request
-preview_count = st.number_input("Preview pages", min_value=1, max_value=3, value=1, step=1)
-
-pages_input_value = "all"  # will render input after preview
-convert_clicked = False
-
-if uploaded:
-    # Persist the upload to a temp file so libraries can read it by path
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-        tmp.write(uploaded.read())
-        pdf_path = tmp.name
-
-    # Basic PDF info
+def extract_tables_digital(path: str):
+    tables = []
+    # 1) Lattice preserves cell grid (best for ruled bank tables)
     try:
-        doc = fitz.open(pdf_path)
-        total_pages = len(doc)
-        st.info(f"Detected **{total_pages}** page(s) in the PDF.")
-    except Exception as e:
-        st.error(f"Could not open PDF: {e}")
-        logs = get_log_text()
-        if logs:
-            with st.expander("Logs (optional)", expanded=False):
-                st.code(logs or "Logs will appear here...", language="text")
-        st.stop()
-
-    # ----- Preview first N pages -----
-    st.subheader("Preview")
-    pages_to_show = list(range(1, min(preview_count, total_pages) + 1))
-    for p in pages_to_show:
+        t = camelot.read_pdf(path, pages="all", flavor="lattice", strip_text="\n")
+        tables += [tbl.df for tbl in t]
+    except Exception:
+        pass
+    # 2) Stream for non-ruled layouts
+    if not tables:
         try:
-            img = render_page_image(pdf_path, p, dpi=150)
-            st.image(img, caption=f"Page {p}", width='stretch')
-        except Exception as e:
-            st.warning(f"Preview failed for page {p}: {e}")
+            t = camelot.read_pdf(path, pages="all", flavor="stream", row_tol=12, column_tol=8, strip_text="\n")
+            tables += [tbl.df for tbl in t]
+        except Exception:
+            pass
+    # 3) Fallback to pdfplumber
+    if not tables:
+        try:
+            with pdfplumber.open(path) as pdf:
+                for page in pdf.pages:
+                    tbs = page.extract_tables()
+                    for tb in tbs:
+                        df = pd.DataFrame(tb[1:], columns=tb[0])
+                        tables.append(df)
+        except Exception:
+            pass
+    return [clean_df(df) for df in tables if df is not None]
 
-    st.markdown("---")
+def extract_tables_scanned(path: str):
+    """Prefer PaddleOCR PP-Structure when available; else Tesseract text-only fallback."""
+    dfs = []
+    pages = convert_from_path(path, dpi=300)
+    if HAVE_PADDLE:
+        engine = PPStructure(show_log=False, ocr=True, layout=True, table=True)
+        for img in pages:
+            with Image.fromarray(np.array(img)) as im:
+                # Save to temp file path-like
+                tmp = UPLOAD_DIR / "_tmp_scan.png"
+                im.save(tmp)
+                result = engine(str(tmp))
+                for block in result:
+                    if block.get("type") == "table" and "res" in block and "html" in block["res"]:
+                        try:
+                            df = pd.read_html(block["res"]["html"])[0]
+                            dfs.append(df)
+                        except Exception:
+                            pass
+        return [clean_df(df) for df in dfs if df is not None]
+    else:
+        # Tesseract fallback: we can only get text reliably; use pdfplumber to try cell detection (weak).
+        # For MVP, we’ll attempt pdfplumber tables after converting to PDF again (no-op).
+        # Better: ask to install paddleocr for robust scans.
+        st.warning("PaddleOCR not installed. Scanned table extraction will be less accurate. Install `paddleocr` for better results.")
+        try:
+            with pdfplumber.open(path) as pdf:
+                for page in pdf.pages:
+                    for tb in page.extract_tables():
+                        df = pd.DataFrame(tb[1:], columns=tb[0])
+                        dfs.append(df)
+        except Exception:
+            pass
+        return [clean_df(df) for df in dfs if df is not None]
 
-    # ----- Pages input and Convert button placed **after** preview -----
-    pages_input_value = st.text_input("Pages to extract (e.g., 1-50, 3,5-7, or all)", value="all")
-    convert_clicked = st.button("Convert")
+def select_transaction_tables(dfs):
+    """Heuristic: choose tables with date + (debit/credit) + balance or largest table."""
+    candidates = []
+    for df in dfs:
+        cols = [c.lower() for c in df.columns]
+        has_date = any(any(c.startswith(x) for x in DATE_COLS) for c in cols)
+        has_amt = any(any(c.startswith(x) for x in DEBIT_COLS + CREDIT_COLS) for c in cols)
+        has_bal = any(any(c.startswith(x) for x in BAL_COLS) for c in cols)
+        if has_date and (has_amt or has_bal):
+            candidates.append(df)
+    if candidates:
+        return candidates
+    # fallback: pick biggest
+    if dfs:
+        return [max(dfs, key=lambda d: len(d))]
+    return []
 
-    if convert_clicked:
-        with st.spinner("Converting…"):
-            # Resolve pages_str for Camelot
-            if pages_input_value.strip().lower() == "all":
-                pages_list = list(range(1, total_pages + 1))
-                pages_str = "all"
-            else:
-                try:
-                    pages_list = parse_pages_arg(pages_input_value)
-                    pages_list = [p for p in pages_list if 1 <= p <= total_pages]
-                    if not pages_list:
-                        st.error("No valid page numbers in range.")
-                        logs = get_log_text()
-                        if logs:
-                            with st.expander("Logs (optional)", expanded=False):
-                                st.code(logs or "Logs will appear here...", language="text")
-                        st.stop()
-                    pages_str = ",".join(map(str, pages_list))
-                except Exception as e:
-                    st.error(f"Invalid pages input: {e}")
-                    logs = get_log_text()
-                    if logs:
-                        with st.expander("Logs (optional)", expanded=False):
-                            st.code(logs or "Logs will appear here...", language="text")
-                    st.stop()
+def extract_full_text(path: str) -> str:
+    txt = []
+    try:
+        doc = fitz.open(path)
+        for p in doc:
+            txt.append(p.get_text("text"))
+    except Exception:
+        pass
+    return "\n".join(txt)
 
-            # Scanned page detection (like your assert logic)
-            try:
-                pages_for_scan = pages_list if pages_input_value.strip().lower() != "all" else list(range(1, total_pages + 1))
-                scanned_pages, total = detect_scanned_pages(pdf_path, pages_for_scan)
-                if scanned_pages:
-                    st.error(
-                        f"⚠️ These pages may be scanned (very little text detected): {scanned_pages}\n"
-                        f"Camelot (lattice) will likely fail on scanned images. "
-                        f"Use OCR (e.g., Tesseract) first or upload a text-based PDF."
-                    )
-                    logs = get_log_text()
-                    if logs:
-                        with st.expander("Logs (optional)", expanded=False):
-                            st.code(logs or "Logs will appear here...", language="text")
-                    st.stop()
-            except Exception as e:
-                logger.warning(f"Scan detection skipped due to error: {e}")
+def parse_header(text: str):
+    # Loose regex to work across banks
+    bank = re.search(r'(?im)^\s*(HDFC|ICICI|STATE BANK OF INDIA|SBI|AXIS|KOTAK|IDFC FIRST|CANARA|YES|INDUSIND).*BANK', text)
+    branch = re.search(r'(?i)\b(branch|br\.?)\s*[:\-]?\s*([A-Za-z0-9 /_\-]+)', text)
+    holder = re.search(r'(?i)(customer name|account holder|acc(?:ount)? name|name)\s*[:\-]?\s*([A-Za-z][A-Za-z .]+)', text)
+    period = re.search(r'(?i)(statement\s*period|period)\s*[:\-]?\s*([0-9A-Za-z /:\-]+to[0-9A-Za-z /:\-]+)', text)
+    opening = re.search(r'(?i)(opening|initial|init\.?\s*bal(?:ance)?)\s*[:\-]?\s*₹?\s*([0-9,.\(\) -]+)', text)
+    return {
+        "bank_name": bank.group(0).strip() if bank else "Unknown Bank",
+        "branch_name": branch.group(2).strip() if branch else "",
+        "account_holder_name": holder.group(2).strip() if holder else "",
+        "statement_period": period.group(2).strip() if period else "",
+        "initial_balance": parse_amount(opening.group(2)) if opening else None
+    }
 
-            # Extract tables with metadata (same Camelot logic, extra instrumentation only)
-            raw_df, meta = extract_tables_with_meta(pdf_path, pages_str)
+def parse_footer(text: str):
+    tot_debit = re.search(r'(?i)(total\s*debit|debit\s*total)\s*[:\-]?\s*₹?\s*([0-9,.\(\) -]+)', text)
+    tot_credit = re.search(r'(?i)(total\s*credit|credit\s*total)\s*[:\-]?\s*₹?\s*([0-9,.\(\) -]+)', text)
+    closing = re.search(r'(?i)(closing\s*bal(?:ance)?|available\s*bal(?:ance)?)\s*[:\-]?\s*₹?\s*([0-9,.\(\) -]+)', text)
+    return {
+        "total_debit_amount": parse_amount(tot_debit.group(2)) if tot_debit else None,
+        "total_credit_amount": parse_amount(tot_credit.group(2)) if tot_credit else None,
+        "closing_balance": parse_amount(closing.group(2)) if closing else None
+    }
 
-            if raw_df.empty:
-                st.error("No tables extracted. If the PDF is scanned, please OCR it first.")
-                # Show summary block if any meta exists
-                with st.expander("Extraction summary (debug)", expanded=False):
-                    st.markdown(f"**Pages requested:** `{meta.get('pages_str','')}`")
-                    st.markdown(f"**Tables detected:** `{meta.get('tables_count',0)}`")
-                    st.markdown(f"**Extraction time:** `{meta.get('duration_sec',0):.2f}s`")
-                    if meta.get("per_page"):
-                        for pg, info in meta["per_page"].items():
-                            st.markdown(f"- Page **{pg}** → tables: {info.get('tables',0)}, shapes: {info.get('shapes',[])}")
-                    if meta.get("warnings"):
-                        st.warning("Warnings:\n\n- " + "\n- ".join(meta["warnings"]))
-                    if meta.get("info"):
-                        st.info("Info:\n\n- " + "\n- ".join(meta["info"]))
-                logs = get_log_text()
-                if logs:
-                    with st.expander("Logs (optional)", expanded=False):
-                        st.code(logs or "Logs will appear here...", language="text")
-                st.stop()
+def extract_ref_from_desc(desc: str):
+    m = re.search(r'(?i)(UPI|IMPS|NEFT|RTGS).*?(REF|UTR|TXN|ID)[:\s#-]*([A-Z0-9\-]{6,})', desc or "")
+    return m.group(3) if m else None
 
-            # Finalize DF (same steps as notebook)
-            final_df = finalize_dataframe(raw_df)
-            final_df.columns = [str(c) for c in final_df.columns]  # ensure headers are strings
+def normalize_table_to_6cols(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame(columns=['date','reference_or_cheque_no','description','withdrawal_amount','credit_amount','balance'])
+    cols = df.columns
+    date_col  = pick_col(cols, DATE_COLS) or cols[0]
+    desc_col  = pick_col(cols, DESC_COLS) or (cols[1] if len(cols) > 1 else cols[0])
+    ref_col   = pick_col(cols, REF_COLS)
+    debit_col = pick_col(cols, DEBIT_COLS)
+    credit_col= pick_col(cols, CREDIT_COLS)
+    bal_col   = pick_col(cols, BAL_COLS)
 
-            if final_df.empty:
-                st.error("Conversion produced an empty table after cleaning.")
-                # Show meta since raw had content
-                with st.expander("Extraction summary (debug)", expanded=False):
-                    st.markdown(f"**Pages requested:** `{meta.get('pages_str','')}`")
-                    st.markdown(f"**Tables detected:** `{meta.get('tables_count',0)}`")
-                    st.markdown(f"**Extraction time:** `{meta.get('duration_sec',0):.2f}s`")
-                    if meta.get("per_page"):
-                        for pg, info in meta["per_page"].items():
-                            st.markdown(f"- Page **{pg}** → tables: {info.get('tables',0)}, shapes: {info.get('shapes',[])}")
-                logs = get_log_text()
-                if logs:
-                    with st.expander("Logs (optional)", expanded=False):
-                        st.code(logs or "Logs will appear here...", language="text")
-                st.stop()
+    # Merge wrapped rows (multi-line narration)
+    df2 = merge_wrapped_rows(df, date_col, debit_col, credit_col, bal_col)
 
-            st.success("✅ Conversion successful!")
+    out = []
+    for _, r in df2.iterrows():
+        ddate = normalize_date(r.get(date_col, ""))
+        desc  = str(r.get(desc_col, "")).strip()
+        ref   = str(r.get(ref_col, "")).strip() if ref_col else None
+        debit = parse_amount(r.get(debit_col))
+        credit= parse_amount(r.get(credit_col))
+        bal   = parse_amount(r.get(bal_col))
+        if not ref:
+            ref = extract_ref_from_desc(desc)
+        # Skip completely empty rows
+        if (ddate == "" and desc == "" and debit is None and credit is None and bal is None):
+            continue
+        out.append({
+            "date": ddate,
+            "reference_or_cheque_no": ref if ref else None,
+            "description": desc,
+            "withdrawal_amount": debit if debit else None,
+            "credit_amount": credit if credit else None,
+            "balance": bal if bal is not None else np.nan
+        })
+    out_df = pd.DataFrame(out, columns=['date','reference_or_cheque_no','description','withdrawal_amount','credit_amount','balance'])
+    return out_df
 
-            # ---- Extraction Summary (per-page rows/cols, totals) ----
-            with st.expander("Extraction summary (debug)", expanded=True):
-                # Meta from Camelot
-                st.markdown(f"**Pages requested:** `{meta.get('pages_str','')}`")
-                st.markdown(f"**Tables detected:** `{meta.get('tables_count',0)}`")
-                st.markdown(f"**Extraction time:** `{meta.get('duration_sec',0):.2f}s`")
+def build_statement_object(path: str):
+    text = extract_full_text(path)
+    header = parse_header(text)
+    footer = parse_footer(text)
 
-                # Per-page shapes
-                if meta.get("per_page"):
-                    st.markdown("**Per-page table shapes:**")
-                    for pg in sorted(meta["per_page"].keys()):
-                        info = meta["per_page"][pg]
-                        st.markdown(f"- Page **{pg}** → tables: `{info.get('tables',0)}`, shapes: `{info.get('shapes',[])}`")
-                else:
-                    st.markdown("_No per-page breakdown available from Camelot._")
+    dfs = extract_tables_scanned(path) if is_scanned_pdf(path) else extract_tables_digital(path)
+    tx_dfs = select_transaction_tables(dfs)
 
-                # Totals before/after cleaning
-                total_raw_rows = int(raw_df.shape[0]) if hasattr(raw_df, "shape") else 0
-                total_raw_cols = int(raw_df.shape[1]) if hasattr(raw_df, "shape") else 0
-                total_final_rows = int(final_df.shape[0]) if hasattr(final_df, "shape") else 0
-                total_final_cols = int(final_df.shape[1]) if hasattr(final_df, "shape") else 0
+    if not tx_dfs:
+        tx_norm = pd.DataFrame(columns=['date','reference_or_cheque_no','description','withdrawal_amount','credit_amount','balance'])
+    else:
+        tx_norm = pd.concat([normalize_table_to_6cols(d) for d in tx_dfs], ignore_index=True)
+        tx_norm = tx_norm.dropna(how="all", subset=['date','description','withdrawal_amount','credit_amount','balance'])
 
-                st.markdown("**Totals:**")
-                st.markdown(f"- Raw concat DF: **{total_raw_rows}** rows × **{total_raw_cols}** cols")
-                st.markdown(f"- Final DF (after header + cleaning): **{total_final_rows}** rows × **{total_final_cols}** cols")
+    # Derive missing balances
+    initial = header.get("initial_balance")
+    if initial is None and len(tx_norm) > 0 and pd.notna(tx_norm.iloc[0]['balance']):
+        first = tx_norm.iloc[0]
+        if pd.notna(first['credit_amount']):
+            initial = float(first['balance']) - float(first['credit_amount'])
+        elif pd.notna(first['withdrawal_amount']):
+            initial = float(first['balance']) + float(first['withdrawal_amount'])
 
-                # Header preview & numeric columns detected
-                st.markdown("**Detected headers (final):**")
-                st.code(", ".join(map(str, list(final_df.columns))), language="text")
+    total_debit  = float(tx_norm['withdrawal_amount'].fillna(0).sum()) if len(tx_norm) else 0.0
+    total_credit = float(tx_norm['credit_amount'].fillna(0).sum()) if len(tx_norm) else 0.0
+    closing = footer.get("closing_balance")
+    if closing is None and len(tx_norm) and pd.notna(tx_norm.iloc[-1]['balance']):
+        closing = float(tx_norm.iloc[-1]['balance'])
+    if closing is None and initial is not None:
+        closing = float(initial) + total_credit - total_debit
 
-                numeric_cols = [c for c in final_df.columns if any(
-                    w.lower() in str(c).lower() for w in ["Debit", "Credit", "Balance", "Withdrawal", "Deposit"]
-                )]
-                st.markdown(f"**Numeric-cleaned columns:** {numeric_cols if numeric_cols else 'None'}")
+    return {
+        "header": {
+            "bank_name": header["bank_name"],
+            "branch_name": header["branch_name"],
+            "account_holder_name": header["account_holder_name"],
+            "statement_period": header["statement_period"],
+            "initial_balance": float(initial) if initial is not None else 0.0
+        },
+        "transactions": tx_norm,
+        "footer": {
+            "total_debit_amount": float(footer.get("total_debit_amount") or total_debit),
+            "total_credit_amount": float(footer.get("total_credit_amount") or total_credit),
+            "closing_balance": float(closing or 0.0)
+        }
+    }
 
-                # Any warnings/info captured
-                if meta.get("warnings"):
-                    st.warning("Warnings:\n\n- " + "\n- ".join(meta["warnings"]))
-                if meta.get("info"):
-                    st.info("Info:\n\n- " + "\n- ".join(meta["info"]))
+def export_to_excel(df: pd.DataFrame) -> bytes:
+    buf = io.BytesIO()
+    with pd.ExcelWriter(buf, engine="openpyxl") as xw:
+        df.to_excel(xw, index=False, sheet_name="Transactions")
+    return buf.getvalue()
 
-            # ---- SAFE PREVIEW (stringified & deduped only for display) ----
-            display_df = make_display_safe(final_df, preview_rows=5)
-            try:
-                st.dataframe(display_df, width='stretch')
-            except Exception as e:
-                st.warning("Couldn’t render the interactive grid; falling back to a static table.")
-                st.table(display_df)  # simple static fallback
-                # Optional: let you reveal the rendering error if you want to debug UI issues
-                show_render_err = st.checkbox("Show preview render error (debug)", value=False)
-                if show_render_err:
-                    st.exception(e)
+# ---------- Streamlit UI ----------
 
-            # Build Excel bytes with formatting (use original df)
-            try:
-                xlsx_bytes = df_to_excel_bytes(final_df)
-            except Exception as e:
-                st.error(f"Error while writing Excel: {e}")
-                logs = get_log_text()
-                if logs:
-                    with st.expander("Logs (optional)", expanded=False):
-                        st.code(logs or "Logs will appear here...", language="text")
-                st.stop()
+tab1, tab2 = st.tabs(["Upload & Extract", "Export Specific File ➜ Excel"])
 
-            out_name = os.path.splitext(uploaded.name)[0] + ".xlsx"
-            st.download_button(
-                "⬇️ Download Excel",
-                data=xlsx_bytes,
-                file_name=out_name,
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            )
+with tab1:
+    st.subheader("Upload PDFs (digital or scanned)")
+    files = st.file_uploader("Choose PDF files", type=["pdf"], accept_multiple_files=True)
+    if st.button("Process"):
+        if not files:
+            st.info("Please upload at least one PDF.")
+        else:
+            for f in files:
+                path = UPLOAD_DIR / f.name
+                with open(path, "wb") as out:
+                    out.write(f.read())
+                with st.spinner(f"Extracting tables from {f.name} ..."):
+                    stmt = build_statement_object(str(path))
+                tx = stmt["transactions"]
+                st.success(f"Done: {f.name} → {len(tx)} rows")
+                st.json(stmt["header"])
+                st.dataframe(tx, use_container_width=True, height=320)
+                # Save normalized CSV for later export / re-use
+                tx.to_csv(UPLOAD_DIR / f"{f.name}.csv", index=False)
 
-        # After a successful run, show logs only if any
-        logs = get_log_text()
-        if logs:
-            with st.expander("Logs (optional)", expanded=False):
-                st.code(logs or "Logs will appear here...", language="text")
+with tab2:
+    st.subheader("Pick a previously processed file and export to Excel")
+    processed = [p.name for p in UPLOAD_DIR.glob("*.pdf") if (UPLOAD_DIR / f"{p.name}.csv").exists()]
+    chosen = st.selectbox("Select file", processed)
+    if chosen:
+        df = pd.read_csv(UPLOAD_DIR / f"{chosen}.csv")
+        st.dataframe(df, use_container_width=True, height=320)
+        xls = export_to_excel(df)
+        st.download_button(
+            "⬇️ Download Excel",
+            data=xls,
+            file_name=f"{chosen}_transactions.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
-else:
-    st.info("Upload a PDF to begin.")
+st.caption("Tip: Install `paddleocr` for best scanned‑PDF table accuracy. Lattice-first Camelot preserves digital tables.")
