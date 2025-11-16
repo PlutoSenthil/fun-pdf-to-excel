@@ -1,4 +1,4 @@
-bank-extractor/
+bank-pdf-to-excel/
 ├─ requirements.txt
 ├─ app_streamlit.py
 ├─ help.py
@@ -6,7 +6,7 @@ bank-extractor/
    ├─ __init__.py
    ├─ schema.py
    ├─ layout_extract.py
-   ├─ llm_langchain.py
+   ├─ gemini_client.py
    └─ pipeline.py
 
 python3 -m venv venv

@@ -5,50 +5,54 @@ import streamlit as st
 import pandas as pd
 
 from help import xlsx_name_from_pdf
-from extractor.pipeline import pdf_to_excel_linewise
+from extractor.pipeline import pdf_to_excel_batched
 
-st.set_page_config(page_title="Bank Statement Extractor (OpenRouter + LangChain)", layout="centered")
-st.title("Bank Statement Extractor — OpenRouter (LangChain)")
+# ---- Model choices
+MODEL_CHOICES = {
+    "Gemini 2.5 Flash": "gemini-2.5-flash",  # default
+    "Gemini 2.5 Flash Lite": "gemini-2.5-flash-lite",
+    "Gemini 2.0 Flash": "gemini-2.0-flash",
+    "Gemini 2.0 Flash Lite": "gemini-2.0-flash-lite",
+    "Gemini 2.5 Pro": "gemini-2.5-pro",
+    "Gemini 2.0 Flash Experimental": "gemini-2.0-flash-exp",
+    "LearnLM 2.0 Flash Experimental": "learnlm-2.0-flash-experimental",
+}
 
-# --- Read the OpenRouter API key from Streamlit secrets (preferred) ---
+st.set_page_config(page_title="Bank PDF → Excel (Gemini, fast)", layout="centered")
+st.title("Bank Statement Extractor — Gemini (fast + structured)")
+
+# ---- API Key from Streamlit Secrets (preferred) or env fallback
 try:
-    API_KEY = st.secrets["OPENROUTER_API_KEY"]
+    GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 except Exception:
-    API_KEY = os.getenv("OPENROUTER_API_KEY")
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-if not API_KEY:
-    st.error("OPENROUTER_API_KEY is not set. Add it to Streamlit Secrets or env and rerun.")
+if not GOOGLE_API_KEY:
+    st.error("Set GOOGLE_API_KEY in Streamlit Secrets (or as an env var) and rerun.")
     st.stop()
 
-# --- Curated free models for structured extraction (text-only) ---
-MODEL_CHOICES = [
-    "meta-llama/llama-3.3-70b-instruct:free",
-    "mistralai/mistral-small-3.2-24b-instruct:free",
-    "deepseek/deepseek-chat-v3.1:free",
-    "qwen/qwen-2.5-72b-instruct:free",
-    "google/gemma-3-12b-it:free",
-]
-model_id = st.selectbox("OpenRouter model", MODEL_CHOICES, index=0)
+# ---- Model dropdown
+model_label = st.selectbox("Gemini model", list(MODEL_CHOICES.keys()), index=0)
+model_id = MODEL_CHOICES[model_label]
 
-# --- File upload ---
-pdf_file = st.file_uploader("Upload bank statement PDF", type=["pdf"])
+# ---- Upload
+pdf_file = st.file_uploader("Upload a bank statement PDF", type=["pdf"])
 
-# --- Advanced options ---
+# ---- Advanced
 with st.expander("Advanced"):
+    batch_size = st.number_input("Lines per batch (speed vs. cost)", min_value=1, max_value=50, value=8, step=1)
+    max_output_tokens = st.number_input("Max output tokens / call", min_value=256, max_value=8192, value=2048, step=256)
     use_layout = st.checkbox("Use PyMuPDF Layout (if installed)", value=True,
-                             help="If 'pymupdf.layout' is present, it improves layout & table detection.")
-    max_tokens = st.number_input("Max tokens per response", min_value=512, max_value=8192, value=4096, step=256)
-    temperature = st.number_input("Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.1)
-    skip_filter = st.checkbox("Skip non-transaction-like lines", value=True)
-    prefer_json_mode = st.checkbox("Prefer provider JSON mode (response_format=json) when supported", value=True)
+                             help="Activates pymupdf.layout if present for better layout & tables.")
+    skip_filter = st.checkbox("Skip obvious non-transaction lines", value=True)
 
-# --- Error log (session) ---
+# ---- Session error log
 if "error_log" not in st.session_state:
     st.session_state["error_log"] = []
 error_log = st.session_state["error_log"]
 
-# --- Extract button ---
-if st.button("Extract", type="primary") and pdf_file:
+# ---- Extract
+if st.button("Extract to Excel", type="primary") and pdf_file:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         tmp.write(pdf_file.read())
         tmp_pdf = tmp.name
@@ -57,17 +61,16 @@ if st.button("Extract", type="primary") and pdf_file:
     out_path = os.path.join(os.path.dirname(tmp_pdf), out_name)
 
     try:
-        with st.spinner(f"Parsing with PyMuPDF4LLM and extracting via {model_id}…"):
-            df = pdf_to_excel_linewise(
+        with st.spinner(f"Parsing + extracting with {model_id}…"):
+            df = pdf_to_excel_batched(
                 pdf_path=tmp_pdf,
                 out_xlsx_path=out_path,
+                google_api_key=GOOGLE_API_KEY,
                 model_id=model_id,
-                api_key=API_KEY,
-                max_tokens=int(max_tokens),
-                temperature=float(temperature),
+                batch_size=int(batch_size),
+                max_output_tokens=int(max_output_tokens),
                 use_layout=use_layout,
                 skip_non_txn_filter=skip_filter,
-                prefer_json_mode=prefer_json_mode,
                 error_log=error_log,
             )
         st.success(f"Done. Extracted {len(df)} rows.")
@@ -93,7 +96,7 @@ if st.button("Extract", type="primary") and pdf_file:
         except Exception:
             pass
 
-# --- Error log panel ---
+# ---- Error log
 st.subheader("Error log")
 if error_log:
     st.code("\n\n".join(error_log[-5:]), language="text")

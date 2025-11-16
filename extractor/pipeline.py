@@ -1,21 +1,38 @@
+from typing import List, Optional, Dict, Any, Type
+import math
 import pandas as pd
-from typing import Optional, List, Dict, Any
 from pydantic import ValidationError
 
-from .schema import TransactionRow
+from .schema import FinancialTransactionRow
 from .layout_extract import extract_lines_pymupdf4llm
-from .llm_langchain import get_llm_openrouter, predict_one_row
+from .gemini_client import build_gemini_client, extract_batch_with_schema
 
-def pdf_to_excel_linewise(
+SYSTEM_INSTRUCTIONS = """You are a meticulous parser of bank statements.
+
+You will receive one or more transaction lines from a single page. For each
+true transaction line, produce one JSON object matching the schema.
+If a line is not a transaction row (headers/totals/footers), skip it.
+
+Rules:
+- Keep the date string as seen (no reformatting).
+- Numeric fields must be numbers (floats). Do not emit currency symbols or '-'.
+- If an amount is absent, use null.
+- 'withdrawal_amount' and 'credit_amount' must be positive numbers.
+- 'balance' must be a number.
+"""
+
+def batch(iterable: List[str], n: int) -> List[List[str]]:
+    return [iterable[i:i+n] for i in range(0, len(iterable), n)]
+
+def pdf_to_excel_batched(
     pdf_path: str,
     out_xlsx_path: str,
+    google_api_key: str,
     model_id: str,
-    api_key: str,
-    max_tokens: int = 4096,
-    temperature: float = 0.0,
+    batch_size: int = 8,          # N lines per call for speed
+    max_output_tokens: int = 2048,
     use_layout: bool = True,
     skip_non_txn_filter: bool = True,
-    prefer_json_mode: bool = True,
     error_log: Optional[List[str]] = None,
 ) -> pd.DataFrame:
     if error_log is None:
@@ -28,60 +45,54 @@ def pdf_to_excel_linewise(
         page_chunks=True,
     )
 
-    # Try to use JSON mode if the chosen model supports it; auto-fallback otherwise.
-    llm = get_llm_openrouter(
-        model_id=model_id,
-        api_key=api_key,
-        max_tokens=max_tokens,
-        temperature=temperature,
-        json_mode=prefer_json_mode,
-    )
+    client = build_gemini_client(google_api_key)
 
     records: List[Dict[str, Any]] = []
 
     for page_idx, (lines, header_hint) in enumerate(zip(pages_lines, header_hints), start=1):
-        page_count = 0
-        for line_idx, line in enumerate(lines, start=1):
-            if skip_non_txn_filter:
-                has_amountish = any(ch.isdigit() for ch in line) and ('.' in line or ',' in line)
-                has_dateish = ('-' in line or '/' in line)
-                if not (has_amountish or has_dateish):
-                    continue
+        # quick filter to cut obvious non-rows
+        if skip_non_txn_filter:
+            filtered = []
+            for ln in lines:
+                has_amountish = any(ch.isdigit() for ch in ln) and ('.' in ln or ',' in ln)
+                has_dateish = ('-' in ln or '/' in ln)
+                if has_amountish or has_dateish:
+                    filtered.append(ln)
+            lines = filtered
+
+        for chunk in batch(lines, batch_size):
+            if not chunk:
+                continue
+            # Build prompt per batch; add header hint to guide mapping
+            header_part = f"\nKnown header: {header_hint}\n" if header_hint else ""
+            prompt = SYSTEM_INSTRUCTIONS + header_part + "\nLines:\n"
 
             try:
-                obj = predict_one_row(
-                    llm=llm,
-                    page_num=page_idx,
-                    line_num=line_idx,
-                    line_text=line,
-                    header_hint=header_hint,
-                    use_structured_first=True,
+                parsed = extract_batch_with_schema(
+                    client=client,
+                    model_id=model_id,
+                    prompt=prompt,
+                    batch_lines=chunk,
+                    schema=list[FinancialTransactionRow],  # type: ignore  (PEP 695)
+                    max_output_tokens=max_output_tokens,
                 )
-                row = TransactionRow(**obj)
-                rec = row.model_dump()
-                rec["page"] = page_idx
-                rec["line_index"] = line_idx
-                records.append(rec)
-                page_count += 1
-            except ValidationError as ve:
-                error_log.append(f"[Page {page_idx} Line {line_idx}] pydantic error: {ve}")
+                # parsed is List[FinancialTransactionRow]
+                for obj in parsed:
+                    try:
+                        row = FinancialTransactionRow.model_validate(obj)
+                        rec = row.model_dump()
+                        rec["page"] = page_idx
+                        records.append(rec)
+                    except ValidationError as ve:
+                        error_log.append(f"[Page {page_idx}] pydantic error: {ve}")
             except Exception as e:
-                error_log.append(f"[Page {page_idx} Line {line_idx}] LLM error: {e}")
+                error_log.append(f"[Page {page_idx}] Gemini error: {e}")
 
     df = pd.DataFrame(records)
 
-    # Optional ordering by dates then page/line
-    def dmy_key(s: str):
-        try:
-            d, m, y = s.split("-")
-            return (int(y), int(m), int(d))
-        except Exception:
-            return (9999, 12, 31)
-
+    # Optional sort: date as text preserved; sort by page to keep chronological context
     if not df.empty:
-        df["__sv"] = df["value_date"].map(dmy_key)
-        df["__sp"] = df["post_date"].map(dmy_key)
-        df = df.sort_values(["__sv", "__sp", "page", "line_index"]).drop(columns=["__sv", "__sp"], errors="ignore")
+        df = df.sort_values(["page"]).reset_index(drop=True)
 
     df.to_excel(out_xlsx_path, index=False)
     return df
