@@ -4,17 +4,18 @@ from pydantic import ValidationError
 
 from .schema import TransactionRow
 from .layout_extract import extract_lines_pymupdf4llm
-from .llm_openrouter import OpenRouterLineLLM, SYSTEM_PROMPT, build_user_prompt
+from .llm_langchain import get_llm_openrouter, predict_one_row
 
 def pdf_to_excel_linewise(
     pdf_path: str,
     out_xlsx_path: str,
-    model_id: str = "meta-llama/llama-3.3-70b-instruct:free",
-    api_key: Optional[str] = None,
+    model_id: str,
+    api_key: str,
     max_tokens: int = 4096,
     temperature: float = 0.0,
     use_layout: bool = True,
     skip_non_txn_filter: bool = True,
+    prefer_json_mode: bool = True,
     error_log: Optional[List[str]] = None,
 ) -> pd.DataFrame:
     if error_log is None:
@@ -27,11 +28,13 @@ def pdf_to_excel_linewise(
         page_chunks=True,
     )
 
-    llm = OpenRouterLineLLM(
+    # Try to use JSON mode if the chosen model supports it; auto-fallback otherwise.
+    llm = get_llm_openrouter(
         model_id=model_id,
         api_key=api_key,
         max_tokens=max_tokens,
         temperature=temperature,
+        json_mode=prefer_json_mode,
     )
 
     records: List[Dict[str, Any]] = []
@@ -45,9 +48,15 @@ def pdf_to_excel_linewise(
                 if not (has_amountish or has_dateish):
                     continue
 
-            user_prompt = build_user_prompt(page_idx, line_idx, line, header_hint)
             try:
-                obj = llm.generate_one_row(SYSTEM_PROMPT, user_prompt)
+                obj = predict_one_row(
+                    llm=llm,
+                    page_num=page_idx,
+                    line_num=line_idx,
+                    line_text=line,
+                    header_hint=header_hint,
+                    use_structured_first=True,
+                )
                 row = TransactionRow(**obj)
                 rec = row.model_dump()
                 rec["page"] = page_idx
@@ -61,6 +70,7 @@ def pdf_to_excel_linewise(
 
     df = pd.DataFrame(records)
 
+    # Optional ordering by dates then page/line
     def dmy_key(s: str):
         try:
             d, m, y = s.split("-")

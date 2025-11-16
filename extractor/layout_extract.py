@@ -3,8 +3,9 @@ import fitz  # PyMuPDF
 import pymupdf4llm
 
 def maybe_enable_layout() -> bool:
+    """Import pymupdf.layout if present to enhance layout & tables."""
     try:
-        import pymupdf.layout  # noqa: F401  # activates advanced layout when installed
+        import pymupdf.layout  # noqa: F401
         return True
     except Exception:
         return False
@@ -27,6 +28,7 @@ def extract_lines_pymupdf4llm(
     finally:
         doc.close()
 
+    # page_chunks=True returns list[dict] (one dict per page) with 'text', 'tables', etc.
     data = pymupdf4llm.to_markdown(
         pdf_path,
         hdr_info=toc_headers,
@@ -58,6 +60,7 @@ def extract_lines_pymupdf4llm(
                 if s:
                     lines.append(s)
 
+        # de-dup preserving order
         seen = set()
         merged = []
         for ln in lines:
