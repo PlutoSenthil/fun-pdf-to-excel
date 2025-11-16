@@ -1,3 +1,14 @@
+bank-extractor/
+├─ requirements.txt
+├─ app.py
+├─ help.py
+└─ extractor/
+   ├─ __init__.py
+   ├─ schema.py
+   ├─ layout_extract.py
+   ├─ llm_constrained.py
+   └─ pipeline.py
+
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt

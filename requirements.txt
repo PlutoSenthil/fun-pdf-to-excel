@@ -1,16 +1,20 @@
-streamlit
-pandas
-openpyxl
-pdfplumber
-pymupdf
-camelot-py[cv]
-pytesseract
-pdf2image
-pillow
-opencv-python
-python-dateutil
-# Optional but recommended for scanned table structure:
-paddleocr
-# Optional for vector indexing:
-qdrant-client
-sentence-transformers
+# Core PDF + layout
+PyMuPDF>=1.26.0
+pymupdf4llm>=0.2.0
+
+# (Optional) improved page layout — import if present
+# pymupdf-layout may be shipped as `pymupdf.layout` module; if you have access, install it as part of PyMuPDF Pro / Layout
+# (no PyPI name published yet; see docs/announcements)
+# pymupdf-layout
+
+# LLM + structured decoding (CPU)
+transformers>=4.42
+accelerate>=0.30
+torch       # install CPU build per your OS from https://pytorch.org
+lm-format-enforcer>=0.11.0
+
+# Data & UI
+pydantic>=2.6
+pandas>=2.1
+openpyxl>=3.1
+streamlit>=1.36
