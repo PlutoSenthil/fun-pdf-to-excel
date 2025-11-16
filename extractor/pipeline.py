@@ -1,27 +1,22 @@
-import os
 import pandas as pd
 from typing import Optional, List, Dict, Any
-
 from pydantic import ValidationError
+
 from .schema import TransactionRow
 from .layout_extract import extract_lines_pymupdf4llm
-from .llm_constrained import LMFEConstrained, SYSTEM_PROMPT, build_user_prompt
+from .llm_openrouter import OpenRouterLineLLM, SYSTEM_PROMPT, build_user_prompt
 
 def pdf_to_excel_linewise(
     pdf_path: str,
     out_xlsx_path: str,
-    model_id: str = "Qwen/Qwen2.5-3B-Instruct",
-    max_new_tokens: int = 350,
+    model_id: str = "meta-llama/llama-3.3-70b-instruct:free",
+    api_key: Optional[str] = None,
+    max_tokens: int = 4096,
+    temperature: float = 0.0,
     use_layout: bool = True,
     skip_non_txn_filter: bool = True,
     error_log: Optional[List[str]] = None,
 ) -> pd.DataFrame:
-    """
-    Extracts lines with PyMuPDF4LLM (layout-enhanced if available),
-    generates exactly-one JSON TransactionRow per line with LMFE-constrained decoding,
-    and writes a DataFrame with page/line_index to out_xlsx_path.
-    Returns the DataFrame.
-    """
     if error_log is None:
         error_log = []
 
@@ -32,7 +27,12 @@ def pdf_to_excel_linewise(
         page_chunks=True,
     )
 
-    llm = LMFEConstrained(model_id=model_id, max_new_tokens=max_new_tokens)
+    llm = OpenRouterLineLLM(
+        model_id=model_id,
+        api_key=api_key,
+        max_tokens=max_tokens,
+        temperature=temperature,
+    )
 
     records: List[Dict[str, Any]] = []
 
@@ -46,9 +46,8 @@ def pdf_to_excel_linewise(
                     continue
 
             user_prompt = build_user_prompt(page_idx, line_idx, line, header_hint)
-
             try:
-                obj = llm.generate_one_row(SYSTEM_PROMPT, user_prompt, max_new_tokens=max_new_tokens)
+                obj = llm.generate_one_row(SYSTEM_PROMPT, user_prompt)
                 row = TransactionRow(**obj)
                 rec = row.model_dump()
                 rec["page"] = page_idx
@@ -60,13 +59,8 @@ def pdf_to_excel_linewise(
             except Exception as e:
                 error_log.append(f"[Page {page_idx} Line {line_idx}] LLM error: {e}")
 
-        # simple page progress
-        # (intentionally quiet in lib; the app shows aggregate counts)
-        # print(f"Page {page_idx}: {page_count} rows")
-
     df = pd.DataFrame(records)
 
-    # Optional: order by dates then page-line (keeps your expected ordering)
     def dmy_key(s: str):
         try:
             d, m, y = s.split("-")
@@ -79,6 +73,5 @@ def pdf_to_excel_linewise(
         df["__sp"] = df["post_date"].map(dmy_key)
         df = df.sort_values(["__sv", "__sp", "page", "line_index"]).drop(columns=["__sv", "__sp"], errors="ignore")
 
-    # Write Excel
     df.to_excel(out_xlsx_path, index=False)
     return df

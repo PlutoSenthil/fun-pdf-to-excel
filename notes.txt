@@ -6,8 +6,8 @@ bank-extractor/
    ├─ __init__.py
    ├─ schema.py
    ├─ layout_extract.py
-   ├─ llm_constrained.py
-   └─ pipeline.py
+   ├─ llm_openrouter.py     # NEW: OpenRouter wrapper
+   └─ pipeline.py           # switched to llm_openrouter
 
 python3 -m venv venv
 source venv/bin/activate
