@@ -1,14 +1,18 @@
+# PDF + layout
 PyMuPDF>=1.26.0
 pymupdf4llm>=0.2.0
+# If you have PyMuPDF Layout, just install/enable it in your env;
+# importing `pymupdf.layout` auto-enhances layout in downstream tools.
 
+# LangChain (core pieces only)
 langchain-core>=0.2.27
 langchain-openai>=0.2.5
-# (Optional) If you still want to try OutputFixingParser later, add: langchain>=0.2.11
 
+# Data + UI
 pydantic>=2.7
 pandas>=2.2
 openpyxl>=3.1
 streamlit>=1.36
 
-# Optional JSON fixer
+# Optional JSON fixer (used only if a model ignores JSON mode)
 json-repair>=0.25.0

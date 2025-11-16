@@ -68,7 +68,7 @@ def _extract_json_object(text: str) -> Dict[str, Any]:
     Parse a JSON object from text. Try strict first; otherwise window {...} and repair.
     """
     text = text.strip()
-    # Strict path
+    # Strict
     try:
         obj = json.loads(text)
         if isinstance(obj, dict):
@@ -121,25 +121,26 @@ def predict_one_row(
             ("user", "{user_prompt}"),
         ]
     )
-    chain = prompt | llm  # parse manually below to allow repair fallback
-    res = chain.invoke(
+    # We call LLM first (so we can repair if needed), then parse
+    res = (prompt | llm).invoke(
         {"format_instructions": parser.get_format_instructions(), "user_prompt": user_prompt}
     )
 
-    # Try direct parse
+    # Parse attempt
+    text = res.content if hasattr(res, "content") else str(res)
     try:
-        obj = _extract_json_object(res.content if hasattr(res, "content") else str(res))
+        obj = _extract_json_object(text)
         _ = TransactionRow(**obj)  # final Pydantic check
         return obj
     except Exception:
-        # Retry: ask the model to return JSON-only, then repair if needed
+        # Retry: ask to return JSON-only; then repair if needed
         retry_prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", "Return ONLY one valid JSON object (no prose), matching the schema."),
                 ("user", "{prev}"),
             ]
         )
-        res2 = (retry_prompt | llm).invoke({"prev": res.content if hasattr(res, "content") else str(res)})
+        res2 = (retry_prompt | llm).invoke({"prev": text})
         obj = _extract_json_object(res2.content if hasattr(res2, "content") else str(res2))
         _ = TransactionRow(**obj)
         return obj
