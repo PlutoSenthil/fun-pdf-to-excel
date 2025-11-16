@@ -3,7 +3,7 @@ import math
 import pandas as pd
 from pydantic import ValidationError
 
-from .schema import FinancialTransactionRow
+from ..schema import FinancialTransactionRow
 from .layout_extract import extract_lines_pymupdf4llm
 from .gemini_client import build_gemini_client, extract_batch_with_schema
 

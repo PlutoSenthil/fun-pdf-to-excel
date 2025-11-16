@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from llama_index.llms.openrouter import OpenRouter
 from llama_index.core.llms import ChatMessage, MessageRole
 
-from .schema import TransactionRow
+from ..schema import TransactionRow
 
 try:
     from json_repair import repair_json

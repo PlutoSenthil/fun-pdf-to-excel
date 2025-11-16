@@ -1,14 +1,9 @@
-# PDF parsing (fast, layout-aware)
+streamlit>=1.36
+transformers>=4.44
+accelerate>=0.33
+torch
 PyMuPDF>=1.26.0
 pymupdf4llm>=0.2.0
-# Optional layout accelerator (auto-activates when importable)
-# pymupdf-layout
-
-# Google Gemini official SDK (structured outputs with Pydantic)
-google-genai>=0.3.0
 pydantic>=2.7
-
-# UI + data
-streamlit>=1.36
 pandas>=2.2
 openpyxl>=3.1
