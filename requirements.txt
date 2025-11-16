@@ -1,22 +1,14 @@
-# PDF + layout
 PyMuPDF>=1.26.0
 pymupdf4llm>=0.2.0
-# If you have PyMuPDF Layout, just install/enable it in your env;
-# importing `pymupdf.layout` auto-enhances layout for downstream tools. ①
 
-# LangChain + OpenRouter (OpenAI-compatible)
-langchain>=0.2.11
 langchain-core>=0.2.27
 langchain-openai>=0.2.5
+# (Optional) If you still want to try OutputFixingParser later, add: langchain>=0.2.11
 
-# Strict structured output & JSON fixing (built-in LangChain parsers)
-# (no extra pkg needed; included in LangChain)
-
-# Data + UI
 pydantic>=2.7
 pandas>=2.2
 openpyxl>=3.1
 streamlit>=1.36
 
-# Optional: robust JSON repair (fallback when a model ignores JSON mode)
+# Optional JSON fixer
 json-repair>=0.25.0

@@ -1,3 +1,4 @@
+# extractor/llm_langchain.py
 import json
 from typing import Any, Dict, Optional
 
@@ -6,9 +7,13 @@ from pydantic import ValidationError
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
-from langchain.output_parsers import OutputFixingParser
 
 from .schema import TransactionRow
+
+try:
+    from json_repair import repair_json
+except Exception:
+    repair_json = None  # optional fallback
 
 SYSTEM_PROMPT = """You are a meticulous bank statement parser.
 
@@ -33,7 +38,7 @@ def get_llm_openrouter(
 ) -> ChatOpenAI:
     """
     LangChain OpenAI-compatible client pointing to OpenRouter.
-    OpenRouter base is https://openrouter.ai/api/v1 (OpenAI style). ②
+    API base: https://openrouter.ai/api/v1 (OpenAI-style). ①
     """
     params: Dict[str, Any] = dict(
         model=model_id,
@@ -43,8 +48,7 @@ def get_llm_openrouter(
         max_tokens=max_tokens,
     )
     if json_mode:
-        # For models that support native JSON mode via OpenRouter
-        # (OpenRouter honors response_format for eligible models) ②
+        # For models that support native JSON mode via OpenRouter ①
         params["response_format"] = {"type": "json_object"}
     return ChatOpenAI(**params)
 
@@ -59,6 +63,33 @@ def build_user_prompt(page_num: int, line_num: int, line_text: str, header_hint:
     )
 
 
+def _extract_json_object(text: str) -> Dict[str, Any]:
+    """
+    Parse a JSON object from text. Try strict first; otherwise window {...} and repair.
+    """
+    text = text.strip()
+    # Strict path
+    try:
+        obj = json.loads(text)
+        if isinstance(obj, dict):
+            return obj
+    except Exception:
+        pass
+
+    # Window {...}
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start : end + 1]
+        if repair_json is not None:
+            candidate = repair_json(candidate, ensure_ascii=False)
+        obj = json.loads(candidate)
+        if not isinstance(obj, dict):
+            raise ValueError("Top-level JSON is not an object")
+        return obj
+
+    raise ValueError("No JSON object found in model response.")
+
+
 def predict_one_row(
     llm: ChatOpenAI,
     page_num: int,
@@ -68,41 +99,47 @@ def predict_one_row(
     use_structured_first: bool = True,
 ) -> Dict[str, Any]:
     """
-    Try provider-native structured output (with_structured_output) first.
-    Fallback: JsonOutputParser + OutputFixingParser (LangChain built-ins).
+    Preferred: provider-native structured output (with_structured_output) if supported.
+    Fallback: JsonOutputParser (langchain-core) with optional json-repair after a retry.
     """
     user_prompt = build_user_prompt(page_num, line_num, line_text, header_hint)
 
-    # 1) Preferred: provider-native structured output (if supported by the model)
+    # 1) Provider-native structured output (supported models)
     if use_structured_first:
         try:
             structured_llm = llm.with_structured_output(TransactionRow)
-            obj = structured_llm.invoke(
-                [
-                    ("system", SYSTEM_PROMPT),
-                    ("user", user_prompt),
-                ]
-            )
-            # obj is a Pydantic model instance; cast to dict
+            obj = structured_llm.invoke([("system", SYSTEM_PROMPT), ("user", user_prompt)])
             return obj.dict()
         except Exception:
-            # fall through to parser strategy
             pass
 
-    # 2) Parser strategy with auto-fix
+    # 2) Parser strategy
     parser = JsonOutputParser(pydantic_object=TransactionRow)
-    fix_parser = OutputFixingParser.from_llm(parser=parser, llm=llm)
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", SYSTEM_PROMPT + "\n{format_instructions}"),
             ("user", "{user_prompt}"),
         ]
     )
-    chain = prompt | llm | fix_parser
-    result = chain.invoke(
+    chain = prompt | llm  # parse manually below to allow repair fallback
+    res = chain.invoke(
         {"format_instructions": parser.get_format_instructions(), "user_prompt": user_prompt}
     )
 
-    # result is dict validated by parser; ensure Pydantic validation one more time
-    _ = TransactionRow(**result)
-    return result
+    # Try direct parse
+    try:
+        obj = _extract_json_object(res.content if hasattr(res, "content") else str(res))
+        _ = TransactionRow(**obj)  # final Pydantic check
+        return obj
+    except Exception:
+        # Retry: ask the model to return JSON-only, then repair if needed
+        retry_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", "Return ONLY one valid JSON object (no prose), matching the schema."),
+                ("user", "{prev}"),
+            ]
+        )
+        res2 = (retry_prompt | llm).invoke({"prev": res.content if hasattr(res, "content") else str(res)})
+        obj = _extract_json_object(res2.content if hasattr(res2, "content") else str(res2))
+        _ = TransactionRow(**obj)
+        return obj
