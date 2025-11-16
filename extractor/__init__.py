@@ -1,0 +1,1 @@
+from .pdf2excel import parse_pdf_to_excel  # re-export for "from extractor import parse_pdf_to_excel"

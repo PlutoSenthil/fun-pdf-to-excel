@@ -1,9 +1,19 @@
+# UI + data
 streamlit>=1.36
-transformers>=4.44
-accelerate>=0.33
-torch
-PyMuPDF>=1.26.0
-pymupdf4llm>=0.2.0
-pydantic>=2.7
 pandas>=2.2
 openpyxl>=3.1
+
+# PDF parsing (fast, CPU)
+PyMuPDF>=1.26.0
+pymupdf4llm>=0.2.0
+
+# Local LLM (CPU)
+transformers>=4.44
+accelerate>=0.33
+torch     # install the CPU wheel for your OS; on Streamlit Cloud the base image provides it
+
+# Validation
+pydantic>=2.7
+
+# Optional: JSON repair for extra safety
+json-repair>=0.25.0

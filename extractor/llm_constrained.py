@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from lmformatenforcer import JsonSchemaParser
 from lmformatenforcer.integrations.transformers import build_transformers_prefix_allowed_tokens_fn
 
-from ..schema import TransactionRow
+from .schema import TransactionRow
 
 SYSTEM_PROMPT = """You are a meticulous bank statement parser.
 

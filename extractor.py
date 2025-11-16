@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 from pydantic import ValidationError
 import pandas as pd
 from typing import List, Dict
-from schema import FinancialTransactionRow
+from extractor.schema import FinancialTransactionRow
 
 SYSTEM_PROMPT = """You are a meticulous bank statement parser.
 Return ONLY a JSON array of transaction objects matching this schema:
