@@ -1,0 +1,197 @@
+{
+    "Meta_AssessmentYear": {
+        "id": "Assessment_Year",
+        "HEADER_PATTERN": "FORM\\s*ITR",
+        "PATTERN": "Assessment Year\\s*([0-9\\-]+)",
+        "KEYS": [
+            "Assessment_Year"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_FormType": {
+        "id": "Form_Type",
+        "HEADER_PATTERN": "FORM\\s*ITR",
+        "PATTERN": "FORM\\s*(ITR[0-9A-Za-z\\-]+)",
+        "KEYS": [
+            "Form_Type"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Acknowledgement": {
+        "id": "Acknowledgement_Number",
+        "HEADER_PATTERN": "Acknowledgement Number",
+        "PATTERN": "Acknowledgement Number\\s*:\\s*(\\d+)",
+        "KEYS": [
+            "Acknowledgement_Number"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_DateOfFiling": {
+        "id": "Date_of_Filing",
+        "HEADER_PATTERN": "Date of Filing",
+        "PATTERN": "Date of Filing\\s*:\\s*([0-9A-Za-z\\-]+)\\*?",
+        "KEYS": [
+            "Date_of_Filing"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_PAN": {
+        "id": "PAN",
+        "HEADER_PATTERN": "PART A-GEN",
+        "PATTERN": "PAN\\s*([A-Z0-9]+)",
+        "KEYS": [
+            "PAN"
+        ],
+        "TYPE": "STRING"
+    },
+    "ScheduleS_1": {
+        "id": "Gross_Salary",
+        "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
+        "PATTERN": "Gross Salary.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Gross_Salary"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleS_2": {
+        "id": "Exempt_Allowances",
+        "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
+        "PATTERN": "Less : allowances to the extent exempt u/s 10[\\s\\S]*?([\\d,\\.]+)",
+        "KEYS": [
+            "Exempt_Allowances"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleS_3": {
+        "id": "Net_Salary",
+        "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
+        "PATTERN": "Net Salary.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Net_Salary"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleS_4": {
+        "id": "Income_Chargeable_Salary",
+        "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
+        "PATTERN": "Income chargeable under the Head.*Salaries.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Income_Chargeable_Salary"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleHP_1": {
+        "id": "Income_House_Property",
+        "HEADER_PATTERN": "SCHEDULE HP - DETAILS OF INCOME FROM HOUSE PROPERTY",
+        "PATTERN": "Income under the head.*house property.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Income_House_Property"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "CG_STCG_Equity": {
+        "id": "SCH_CG_Short_term_Sec_111A",
+        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
+        "PATTERN": "Short-term capital gain on equity.*?([\\d,\\.]+)",
+        "KEYS": [
+            "STCG_Equity"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "CG_STCG_Other": {
+        "id": "SCH_CG_Short_term_Other_A5",
+        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
+        "PATTERN": "STCG on assets other than.*?([\\d,\\.]+)",
+        "KEYS": [
+            "STCG_Other"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleCG_STCG_Total": {
+        "id": "SCH_CG__Short_term_Total",
+        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
+        "PATTERN": "Total Short-term Capital Gain.*?([\\d,\\.]+)",
+        "KEYS": [
+            "STCG_Total"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "CG_LTCG_Equity": {
+        "id": "SCH_CG_Long_term_Capital_Gain_Equity_Sec_112A",
+        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
+        "PATTERN": "LTCG u/s 112A.*?([\\d,\\.]+)",
+        "KEYS": [
+            "LTCG_Equity"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "CG_LTCG_Other": {
+        "id": "Long_term_Capital_Gain_Other",
+        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
+        "PATTERN": "Total Long-term Capital Gain.*?([\\d,\\.]+)",
+        "KEYS": [
+            "LTCG_Other"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleCG_LTCG_Total": {
+        "id": "ScheduleCG_Long_term_Capital_Gain_Total",
+        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
+        "PATTERN": "Total Long-term Capital Gain.*?([\\d,\\.]+)",
+        "KEYS": [
+            "LTCG_Total"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleOS_Income": {
+        "id": "Income_Other_Sources",
+        "HEADER_PATTERN": "SCHEDULE OS",
+        "PATTERN": "Income from Other Sources.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Income_Other_Sources"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_Total": {
+        "id": "Total_Deductions",
+        "HEADER_PATTERN": "SCHEDULE VIA",
+        "PATTERN": "Total deductions.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Total_Deductions"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "PartB_TotalIncome": {
+        "id": "Total_Income",
+        "HEADER_PATTERN": "Part B",
+        "PATTERN": "Total Income.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Total_Income"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "PartB_TaxLiability": {
+        "id": "Tax_Liability",
+        "HEADER_PATTERN": "Part B",
+        "PATTERN": "Total Tax.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Tax_Liability"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    }
+}
