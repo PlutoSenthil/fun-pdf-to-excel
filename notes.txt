@@ -1,0 +1,16 @@
+itr_project/
+├─ app.py                # Main Streamlit app
+├─ requirements.txt      # Dependencies
+├─ config/
+│   ├─ itr1_config.json  # Logic for ITR1 extraction
+│   └─ itr2_config.json  # Future configs for other forms
+├─ modules/
+│   ├─ process_pdf.py    # PDF extraction helper
+│   ├─ extract_logic.py  # Apply config-based extraction
+│   └─ utils.py          # Common helper functions
+└─ OUTPUT/               # Generated files
+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip list

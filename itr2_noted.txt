@@ -1,0 +1,42 @@
+ScheduleS Details of your Salary income.
+"ScheduleS_1": {
+        "id": "Gross_Salary",
+        "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
+        "PATTERN": "Gross Salary.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Gross_Salary"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "B1_iii": {
+        "id": "Net_Salary",
+        "HEADER_PATTERN": "PART B GROSS TOTAL INCOME",
+        "PATTERN": "Net Salary.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Net_Salary"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "B1_v": {
+        "id": "Income_Chargeable_Salary",
+        "HEADER_PATTERN": "PART B GROSS TOTAL INCOME",
+        "PATTERN": "Income chargeable under the head 'Salaries'.*?([\\d,\\.]+)",
+        "KEYS": [
+            "Income_Chargeable_Salary"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    }
+
+[
+  "TotalGrossSalary",
+  "AllwncExtentExemptUs10",
+  "NetSalary",
+  "DeductionUS16",
+  "DeductionUnderSection16ia",
+  "EntertainmntalwncUs16ii",
+  "ProfessionalTaxUs16iii",
+  "TotIncUnderHeadSalaries"
+]
