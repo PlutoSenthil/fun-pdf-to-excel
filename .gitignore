@@ -12,4 +12,5 @@ env/
 Thumbs.db
 # Streamlit cache (optional)
 .streamlit/
+OUTPUT/
 ``
