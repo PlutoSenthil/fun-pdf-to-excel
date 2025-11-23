@@ -15,8 +15,6 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 st.set_page_config(page_title="ITR Comparison Tool", layout="wide")
 st.title("📄 ITR Comparison Tool")
 
-# --- Uploader (live badge for uploads) ---
-uploaded_files = st.file_uploader("Upload ITR PDFs", type=["pdf"], accept_multiple_files=True)
 
 # --- Refresh / Start Fresh button (no explicit rerun needed) ---
 top_cols = st.columns([2, 3, 3, 4])  # Refresh, upload badge, output badge, spacer
@@ -30,7 +28,6 @@ with top_cols[0]:
                 pass
         # Reset session state
         st.session_state.clear()
-        uploaded_files = None
         # Recreate OUTPUT dir
         OUTPUT_DIR.mkdir(exist_ok=True)
         st.success("App refreshed. All previous data cleared.")
@@ -46,10 +43,16 @@ def count_output_files():
 # --- Session State Initialization ---
 if "results" not in st.session_state:
     st.session_state.results = []
-
+# --- Uploader (live badge for uploads) ---
+uploaded_files = st.file_uploader("Upload ITR PDFs", type=["pdf"], accept_multiple_files=True)
 # Live status badges (uploads + OUTPUT)
+uploaded_files = st.session_state.get("uploaded_files", [])
 uploaded_count = len(uploaded_files) if uploaded_files else 0
+
 pdf_count, txt_count, xlsx_count, total_count = count_output_files()
+# Live status badges (uploads + OUTPUT)
+# uploaded_count = len(uploaded_files) if uploaded_files else 0
+# pdf_count, txt_count, xlsx_count, total_count = count_output_files()
 
 with top_cols[1]:
     st.metric(label="📥 Uploaded (this run)", value=uploaded_count)
