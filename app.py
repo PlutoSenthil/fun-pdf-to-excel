@@ -43,16 +43,24 @@ def count_output_files():
 # --- Session State Initialization ---
 if "results" not in st.session_state:
     st.session_state.results = []
-# --- Uploader (live badge for uploads) ---
-uploaded_files = st.file_uploader("Upload ITR PDFs", type=["pdf"], accept_multiple_files=True)
-# Live status badges (uploads + OUTPUT)
-uploaded_files = st.session_state.get("uploaded_files", [])
-uploaded_count = len(uploaded_files) if uploaded_files else 0
 
-pdf_count, txt_count, xlsx_count, total_count = count_output_files()
+# --- Uploader (live badge for uploads) ---
+# uploaded_files = st.file_uploader("Upload ITR PDFs", type=["pdf"], accept_multiple_files=True)
+if st.button("🗑️ Clear Uploads", help="Remove uploaded files only"):
+    st.session_state["uploader_key"] = st.session_state.get("uploader_key", 0) + 1
+    st.success("Uploads cleared.")
+
+uploader_key = st.session_state.get("uploader_key", 0)
+uploaded_files = st.file_uploader(
+    "Upload ITR PDFs",
+    type=["pdf"],
+    accept_multiple_files=True,
+    key=f"uploader_{uploader_key}"
+)
+
 # Live status badges (uploads + OUTPUT)
-# uploaded_count = len(uploaded_files) if uploaded_files else 0
-# pdf_count, txt_count, xlsx_count, total_count = count_output_files()
+uploaded_count = len(uploaded_files) if uploaded_files else 0
+pdf_count, txt_count, xlsx_count, total_count = count_output_files()
 
 with top_cols[1]:
     st.metric(label="📥 Uploaded (this run)", value=uploaded_count)
