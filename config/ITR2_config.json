@@ -44,77 +44,67 @@
         ],
         "TYPE": "STRING"
     },
-    "ScheduleS_1": {
-        "id": "Gross_Salary",
+    "ScheduleS1": {
+        "id": "TotalGrossSalary",
         "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
         "PATTERN": "Gross Salary.*?([\\d,\\.]+)",
         "KEYS": [
-            "Gross_Salary"
+            "TotalGrossSalary"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "ScheduleS_2": {
-        "id": "Exempt_Allowances",
+    "ScheduleS3": {
+        "id": "AllwncExtentExemptUs10",
         "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
         "PATTERN": "Less : allowances to the extent exempt u/s 10[\\s\\S]*?([\\d,\\.]+)",
         "KEYS": [
-            "Exempt_Allowances"
+            "AllwncExtentExemptUs10"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "ScheduleS_3": {
-        "id": "Net_Salary",
+    "ScheduleS4": {
+        "id": "NetSalary",
         "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
         "PATTERN": "Net Salary.*?([\\d,\\.]+)",
         "KEYS": [
-            "Net_Salary"
+            "NetSalary"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "ScheduleS_4": {
-        "id": "Income_Chargeable_Salary",
+    "ScheduleS5": {
+        "id": "DeductionUS16",
+        "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
+        "PATTERN": "Deduction u/s 16.*?([\\d,\\.]+)",
+        "KEYS": [
+            "DeductionUS16"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleS6": {
+        "id": "TotIncUnderHeadSalaries",
         "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
         "PATTERN": "Income chargeable under the Head.*Salaries.*?([\\d,\\.]+)",
         "KEYS": [
-            "Income_Chargeable_Salary"
+            "TotIncUnderHeadSalaries"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "ScheduleHP_1": {
-        "id": "Income_House_Property",
+    "ScheduleHP3": {
+        "id": "TotalIncomeChargeableUnHP",
         "HEADER_PATTERN": "SCHEDULE HP - DETAILS OF INCOME FROM HOUSE PROPERTY",
         "PATTERN": "Income under the head.*house property.*?([\\d,\\.]+)",
         "KEYS": [
-            "Income_House_Property"
+            "TotalIncomeChargeableUnHP"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "CG_STCG_Equity": {
-        "id": "SCH_CG_Short_term_Sec_111A",
-        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
-        "PATTERN": "Short-term capital gain on equity.*?([\\d,\\.]+)",
-        "KEYS": [
-            "STCG_Equity"
-        ],
-        "TYPE": "NUMERIC",
-        "EXPECTED_ROW_LEN": 4
-    },
-    "CG_STCG_Other": {
-        "id": "SCH_CG_Short_term_Other_A5",
-        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
-        "PATTERN": "STCG on assets other than.*?([\\d,\\.]+)",
-        "KEYS": [
-            "STCG_Other"
-        ],
-        "TYPE": "NUMERIC",
-        "EXPECTED_ROW_LEN": 4
-    },
-    "ScheduleCG_STCG_Total": {
+    "ScheduleCG_A9": {
         "id": "SCH_CG__Short_term_Total",
         "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
         "PATTERN": "Total Short-term Capital Gain.*?([\\d,\\.]+)",
@@ -124,17 +114,7 @@
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "CG_LTCG_Equity": {
-        "id": "SCH_CG_Long_term_Capital_Gain_Equity_Sec_112A",
-        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
-        "PATTERN": "LTCG u/s 112A.*?([\\d,\\.]+)",
-        "KEYS": [
-            "LTCG_Equity"
-        ],
-        "TYPE": "NUMERIC",
-        "EXPECTED_ROW_LEN": 4
-    },
-    "CG_LTCG_Other": {
+    "ScheduleCG_B13": {
         "id": "Long_term_Capital_Gain_Other",
         "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
         "PATTERN": "Total Long-term Capital Gain.*?([\\d,\\.]+)",
@@ -144,54 +124,224 @@
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "ScheduleCG_LTCG_Total": {
-        "id": "ScheduleCG_Long_term_Capital_Gain_Total",
+    "ScheduleCG_C1": {
+        "id": "SumOfCGIncm",
         "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
-        "PATTERN": "Total Long-term Capital Gain.*?([\\d,\\.]+)",
+        "PATTERN": "Sum of Capital Gain Incomes.*?([\\d,\\.]+)",
         "KEYS": [
-            "LTCG_Total"
+            "SumOfCGIncm"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "ScheduleOS_Income": {
-        "id": "Income_Other_Sources",
+    "ScheduleCG_C2": {
+        "id": "Income_From_VDA_Transfer",
+        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
+        "PATTERN": "Income from transfer of Virtual Digital Assets.*?([\\d,\\.]+)",
+        "KEYS": [
+            "IncmFromVDATrnsf"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleCG_C3": {
+        "id": "Total_Schedule_CG",
+        "HEADER_PATTERN": "SCHEDULE CG CAPITAL GAINS",
+        "PATTERN": "Income chargeable under the head.*CAPITAL GAINS.*?([\\d,\\.]+)",
+        "KEYS": [
+            "TotScheduleCG"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleOS_1": {
+        "id": "GrossOSIncome",
         "HEADER_PATTERN": "SCHEDULE OS",
-        "PATTERN": "Income from Other Sources.*?([\\d,\\.]+)",
+        "PATTERN": "Gross income chargeable.*normal applicable rates.*?([\\d,\\.]+)",
         "KEYS": [
-            "Income_Other_Sources"
+            "GrossOSIncome"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "ScheduleVIA_Total": {
-        "id": "Total_Deductions",
-        "HEADER_PATTERN": "SCHEDULE VIA",
-        "PATTERN": "Total deductions.*?([\\d,\\.]+)",
+    "ScheduleOS_2": {
+        "id": "SpecialRateOSIncome",
+        "HEADER_PATTERN": "SCHEDULE OS",
+        "PATTERN": "Income chargeable at special rates.*?([\\d,\\.]+)",
         "KEYS": [
-            "Total_Deductions"
+            "SpecialRateOSIncome"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "PartB_TotalIncome": {
-        "id": "Total_Income",
-        "HEADER_PATTERN": "Part B",
-        "PATTERN": "Total Income.*?([\\d,\\.]+)",
+    "ScheduleOS_3c": {
+        "id": "OSDeduction57Total",
+        "HEADER_PATTERN": "SCHEDULE OS",
+        "PATTERN": "Total.*3c.*?([\\d,\\.]+)",
         "KEYS": [
-            "Total_Income"
+            "OSDeduction57Total"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
     },
-    "PartB_TaxLiability": {
-        "id": "Tax_Liability",
-        "HEADER_PATTERN": "Part B",
-        "PATTERN": "Total Tax.*?([\\d,\\.]+)",
+    "ScheduleOS_6": {
+        "id": "NetOSIncomeNormalRates",
+        "HEADER_PATTERN": "SCHEDULE OS",
+        "PATTERN": "Net Income from other sources.*?([\\d,\\.]+)",
         "KEYS": [
-            "Tax_Liability"
+            "NetOSIncomeNormalRates"
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleOS_9": {
+        "id": "TotalOSIncome",
+        "HEADER_PATTERN": "SCHEDULE OS",
+        "PATTERN": "Income under the head.*Other Sources.*?([\\d,\\.]+)",
+        "KEYS": [
+            "TotalOSIncome"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleCYLA_Salaries": {
+        "id": "CYLA_Salaries",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Salaries.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_Salaries_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_HouseProperty": {
+        "id": "CYLA_HouseProperty",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "House property.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_HouseProperty_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_STCG15": {
+        "id": "CYLA_STCG15",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Short-term capital gain.*15%.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_STCG15_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_STCG20": {
+        "id": "CYLA_STCG20",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Short-term capital gain.*20%.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_STCG20_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_STCG30": {
+        "id": "CYLA_STCG30",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Short-term capital gain.*30%.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_STCG30_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_STCGApplicable": {
+        "id": "CYLA_STCGApplicable",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Short-term capital gain.*applicable rates.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_STCGApplicable_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_STCGDTAA": {
+        "id": "CYLA_STCGDTAA",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Short-term capital gain.*DTAA.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_STCGDTAA_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_LTCG10": {
+        "id": "CYLA_LTCG10",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Long term capital gain.*10%.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_LTCG10_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_LTCG12_5": {
+        "id": "CYLA_LTCG12_5",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Long term capital gain.*12.5%.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_LTCG12_5_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_LTCG20": {
+        "id": "CYLA_LTCG20",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Long term capital gain.*20%.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_LTCG20_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_LTCGDTAA": {
+        "id": "CYLA_LTCGDTAA",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Long term capital gains.*DTAA.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_LTCGDTAA_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_OtherSources": {
+        "id": "CYLA_OtherSources",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Net income from other sources.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_OtherSources_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_RaceHorses": {
+        "id": "CYLA_RaceHorses",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Profit from the activity.*race horses.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_RaceHorses_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
+    },
+    "ScheduleCYLA_OtherSourcesDTAA": {
+        "id": "CYLA_OtherSourcesDTAA",
+        "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
+        "PATTERN": "Income from other sources.*DTAA.*?([\\d,\\.]+)$",
+        "KEYS": [
+            "CYLA_OtherSourcesDTAA_Remaining"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 6
     }
 }
