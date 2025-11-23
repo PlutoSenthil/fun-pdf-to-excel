@@ -231,7 +231,7 @@ if st.session_state.results:
         st.download_button(
             label="📦 Download All PAN Excels (ZIP)",
             data=zip_buffer,
-            file_name="ITR_Excels.zip",
+            file_name=f"{form_type}_Excels.zip",
             type="primary",
             use_container_width=True,
         )
