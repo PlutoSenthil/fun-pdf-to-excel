@@ -1,6 +1,6 @@
-
 import re
 import json
+import pandas as pd
 
 def clean_int(val):
     try:
@@ -44,12 +44,15 @@ def extract_data(extracted_rows, config_path):
 def build_dataframe(result, assessment_year, form_type):
     data = {}
     for key, value in result.items():
-        data[key] = None
-        if isinstance(value, dict) and 'AMOUNT_CALCULATED' in value:
-            data[key] = int(str(value['AMOUNT_CALCULATED']).replace(',', ''))
+        if isinstance(value, dict):
+            # If AMOUNT_CALCULATED exists, use it
+            if 'AMOUNT_CALCULATED' in value:
+                data[key] = int(str(value['AMOUNT_CALCULATED']).replace(',', ''))
+            else:
+                # Otherwise take the first value in the dict
+                data[key] = list(value.values())[0] if value else None
         else:
-            data[key] = value.get(key, None)
-    import pandas as pd
+            data[key] = value
     df = pd.DataFrame.from_dict(data, orient='index', columns=[assessment_year])
     df.index.name = form_type
     return df
