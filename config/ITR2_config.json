@@ -1076,5 +1076,275 @@
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TaxDeemed115JC_1a": {
+        "id": "TTI_TaxDeemed115JC_1a",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Tax payable on deemed total income under section 115JC(?:\\([^)]*\\))?[\\s\\S]*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TaxDeemed115JC"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 5
+    },
+    "ScheduleTTI_Surcharge115JC_1b": {
+        "id": "TTI_Surcharge115JC_1b",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Surcharge on \\(a\\).*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_Surcharge115JC"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_Cess115JC_1c": {
+        "id": "TTI_Cess115JC_1c",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Health and Education Cess @ 4% on.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_Cess115JC"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TotalTaxDeemed_1d": {
+        "id": "TTI_TotalTaxDeemed_1d",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Total Tax Payable on deemed total income.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TotalTaxDeemed"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TaxNormalRates_2a": {
+        "id": "TTI_TaxNormalRates_2a",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Tax at normal rates.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TaxNormalRates"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TaxSpecialRates_2b": {
+        "id": "TTI_TaxSpecialRates_2b",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Tax at special rates.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TaxSpecialRates"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_RebateAgriIncome_2c": {
+        "id": "TTI_RebateAgriIncome_2c",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Rebate on agricultural income.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_RebateAgriIncome"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TaxPayableTotalIncome_2d": {
+        "id": "TTI_TaxPayableTotalIncome_2d",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Tax Payable on Total Income(?:\\([^)]*\\))?[\\s\\S]*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TaxPayableTotalIncome"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_Rebate87A_3": {
+        "id": "TTI_Rebate87A_3",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Rebate under section 87A[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_Rebate87A"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TaxAfterRebate_4": {
+        "id": "TTI_TaxAfterRebate_4",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Tax Payable after rebate.*?[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TaxAfterRebate"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_SurchargeTotal_5iii": {
+        "id": "TTI_SurchargeTotal_5iii",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Total \\(ia \\+ iia\\).*?[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_SurchargeTotal"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_CessOnTax_6": {
+        "id": "TTI_CessOnTax_6",
+        "HEADER_PATTERN": "Tax Payable after rebate.*?[\\s\\S]*?([0-9,\\.]+)$",
+        "PATTERN": "Health and Education cess @ 4%.*?[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_CessOnTax"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_GrossTaxLiability_7": {
+        "id": "TTI_GrossTaxLiability_7",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Gross tax liability.*?[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_GrossTaxLiability"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_GrossTaxPayable_8": {
+        "id": "TTI_GrossTaxPayable_8",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Gross tax payable.*?[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_GrossTaxPayable"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_Credit115JD_9": {
+        "id": "TTI_Credit115JD_9",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Credit under Section 115JD.*?[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_Credit115JD"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TaxAfter115JD_10": {
+        "id": "TTI_TaxAfter115JD_10",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Tax payable after credit under section 115JD.*?[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TaxAfter115JD"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TaxReliefTotal_11d": {
+        "id": "TTI_TaxReliefTotal_11d",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Total \\(11a \\+ 11b\\+ 11c\\).*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TaxReliefTotal"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_NetTaxLiability_12": {
+        "id": "TTI_NetTaxLiability_12",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Net tax liability(?:\\([^)]*\\))?[\\s\\S]*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_NetTaxLiability"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_TotalInterestFee_13e": {
+        "id": "TTI_TotalInterestFee_13e",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Total Interest and Fee Payable(?:\\([^)]*\\))?[\\s\\S]*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TotalInterestFee"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_AggregateLiability_14": {
+        "id": "TTI_AggregateLiability_14",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Aggregate liability(?:\\([^)]*\\))?[\\s\\S]*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_AggregateLiability"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_AdvanceTax_15a": {
+        "id": "TTI_AdvanceTax_15a",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Advance Tax.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_AdvanceTax"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 5
+    },
+    "ScheduleTTI_TDS_15b": {
+        "id": "TTI_TDS_15b",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "TDS.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TDS"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 5
+    },
+    "ScheduleTTI_TCS_15c": {
+        "id": "TTI_TCS_15c",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "TCS.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TCS"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 5
+    },
+    "ScheduleTTI_SelfAssessmentTax_15d": {
+        "id": "TTI_SelfAssessmentTax_15d",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Self Assessment Tax.*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_SelfAssessmentTax"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 5
+    },
+    "ScheduleTTI_TotalTaxesPaid_15e": {
+        "id": "TTI_TotalTaxesPaid_15e",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Total Taxes Paid(?:\\([^)]*\\))?[\\s\\S]*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_TotalTaxesPaid"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 5
+    },
+    "ScheduleTTI_AmountPayable_16": {
+        "id": "TTI_AmountPayable_16",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Amount payable(?:\\([^)]*\\))?[\\s\\S]*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_AmountPayable"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTTI_Refund_17": {
+        "id": "TTI_Refund_17",
+        "HEADER_PATTERN": "PARTB-TTI - COMPUTATION OF TAX LIABILITY ON TOTAL INCOME",
+        "PATTERN": "Refund(?:\\([^)]*\\))?[\\s\\S]*?[A-Za-z0-9]+[\\s\\S]*?([0-9,\\.]+)$",
+        "KEYS": [
+            "TTI_Refund"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
     }
 }
