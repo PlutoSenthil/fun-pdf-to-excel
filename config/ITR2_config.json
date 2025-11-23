@@ -314,8 +314,8 @@
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 6
     },
-    "ScheduleCYLA_OtherSources": {
-        "id": "CYLA_OtherSources",
+    "ScheduleCYLA_OtherSourcesNormal": {
+        "id": "CYLA_OtherSourcesNormal",
         "HEADER_PATTERN": "SCHEDULE CYLA DETAILS OF INCOME AFTER SET OFF OF CURRENT YEAR LOSSES",
         "PATTERN": "Net income from other[\\s\\S]*sources[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
         "KEYS": [
@@ -367,7 +367,7 @@
     "ScheduleBFLA_STCG15": {
         "id": "BFLA_STCG15",
         "HEADER_PATTERN": "SCHEDULE BFLA DETAILS OF INCOME AFTER SET OFF OF BROUGHT FORWARD LOSSES OF EARLIER YEARS",
-        "PATTERN": "Short-term[\\s\\S]*15%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
+        "PATTERN": "Short-term[\\s\\S]*?@\\s*15%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
         "KEYS": [
             "BFLA_STCG15_Remaining"
         ],
@@ -377,7 +377,7 @@
     "ScheduleBFLA_STCG20": {
         "id": "BFLA_STCG20",
         "HEADER_PATTERN": "SCHEDULE BFLA DETAILS OF INCOME AFTER SET OFF OF BROUGHT FORWARD LOSSES OF EARLIER YEARS",
-        "PATTERN": "Short-term[\\s\\S]*20%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
+        "PATTERN": "Short-term[\\s\\S]*?@\\s*20%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
         "KEYS": [
             "BFLA_STCG20_Remaining"
         ],
@@ -387,7 +387,7 @@
     "ScheduleBFLA_STCG30": {
         "id": "BFLA_STCG30",
         "HEADER_PATTERN": "SCHEDULE BFLA DETAILS OF INCOME AFTER SET OFF OF BROUGHT FORWARD LOSSES OF EARLIER YEARS",
-        "PATTERN": "Short-term[\\s\\S]*30%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
+        "PATTERN": "Short-term[\\s\\S]*?@\\s*30%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
         "KEYS": [
             "BFLA_STCG30_Remaining"
         ],
@@ -417,7 +417,7 @@
     "ScheduleBFLA_LTCG10": {
         "id": "BFLA_LTCG10",
         "HEADER_PATTERN": "SCHEDULE BFLA DETAILS OF INCOME AFTER SET OFF OF BROUGHT FORWARD LOSSES OF EARLIER YEARS",
-        "PATTERN": "Long term[\\s\\S]*10%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
+        "PATTERN": "Long[\\s\\S]*?@\\s*10%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
         "KEYS": [
             "BFLA_LTCG10_Remaining"
         ],
@@ -427,7 +427,7 @@
     "ScheduleBFLA_LTCG12_5": {
         "id": "BFLA_LTCG12_5",
         "HEADER_PATTERN": "SCHEDULE BFLA DETAILS OF INCOME AFTER SET OFF OF BROUGHT FORWARD LOSSES OF EARLIER YEARS",
-        "PATTERN": "Long term[\\s\\S]*12.5%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
+        "PATTERN": "Long[\\s\\S]*?@\\s*12\\.5%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
         "KEYS": [
             "BFLA_LTCG12_5_Remaining"
         ],
@@ -437,7 +437,7 @@
     "ScheduleBFLA_LTCG20": {
         "id": "BFLA_LTCG20",
         "HEADER_PATTERN": "SCHEDULE BFLA DETAILS OF INCOME AFTER SET OFF OF BROUGHT FORWARD LOSSES OF EARLIER YEARS",
-        "PATTERN": "Long term[\\s\\S]*20%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
+        "PATTERN": "Long[\\s\\S]*?@\\s*20%[\\s\\S]*?([0-9,\\.]+)(?:[\\s,0]*)",
         "KEYS": [
             "BFLA_LTCG20_Remaining"
         ],
@@ -493,5 +493,588 @@
         ],
         "TYPE": "NUMERIC",
         "EXPECTED_ROW_LEN": 3
+    },
+    "ScheduleVIA_80C": {
+        "id": "VIA_80C",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80C[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80CCC": {
+        "id": "VIA_80CCC",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80CCC[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80CCD1": {
+        "id": "VIA_80CCD1",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80CCD\\(1\\)[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80CCD1B": {
+        "id": "VIA_80CCD1B",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80CCD\\(1B\\)[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80CCD2": {
+        "id": "VIA_80CCD2",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80CCD\\(2\\)[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80D": {
+        "id": "VIA_80D",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80D[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80DD": {
+        "id": "VIA_80DD",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80DD[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80DDB": {
+        "id": "VIA_80DDB",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80DDB[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80E": {
+        "id": "VIA_80E",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80E[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80EE": {
+        "id": "VIA_80EE",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80EE[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80EEA": {
+        "id": "VIA_80EEA",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80EEA[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80EEB": {
+        "id": "VIA_80EEB",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80EEB[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80G": {
+        "id": "VIA_80G",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80G[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80GG": {
+        "id": "VIA_80GG",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80GG[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80GGA": {
+        "id": "VIA_80GGA",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80GGA[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80GGC": {
+        "id": "VIA_80GGC",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80GGC[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80QQB": {
+        "id": "VIA_80QQB",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80QQB[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80RRB": {
+        "id": "VIA_80RRB",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80RRB[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80TTA": {
+        "id": "VIA_80TTA",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80TTA[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80TTB": {
+        "id": "VIA_80TTB",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80TTB[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80U": {
+        "id": "VIA_80U",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80U[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_80CCH": {
+        "id": "VIA_80CCH",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "80CCH[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleVIA_Total": {
+        "id": "VIA_Total",
+        "HEADER_PATTERN": "SCHEDULE VI-A DEDUCTIONS UNDER CHAPTER VI-A",
+        "PATTERN": "Deduction \\(Total a to ua\\)[\\s\\S]*?([0-9,\\.]+)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "AMOUNT_CLAIMED",
+            "AMOUNT_CALCULATED"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_Salaries": {
+        "id": "TI_Salaries_1",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Salaries[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_Salaries"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_HouseProperty": {
+        "id": "TI_HouseProperty_2",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Income from house property[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_HouseProperty"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_STCG15": {
+        "id": "TI_STCG15",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Short term chargeable @\\s*15%[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_STCG15"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_STCG20": {
+        "id": "TI_STCG20",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Short term chargeable @\\s*20%[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_STCG20"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_STCG30": {
+        "id": "TI_STCG30",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Short term chargeable @\\s*30%[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_STCG30"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_STCGApplicable": {
+        "id": "TI_STCGApplicable",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Short term chargeable at applicable rate[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_STCGApplicable"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_STCGDTAA": {
+        "id": "TI_STCGDTAA",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Short-term chargeable at special rates[\\s\\S]*?DTAA[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_STCGDTAA"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_STCGTotal": {
+        "id": "TI_STCGTotal",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Total Short term[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_STCGTotal"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_LTCG10": {
+        "id": "TI_LTCG10",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Long term chargeable @\\s*10%[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_LTCG10"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_LTCG12_5": {
+        "id": "TI_LTCG12_5",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Long term chargeable @\\s*12\\.5%[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_LTCG12_5"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_LTCG20": {
+        "id": "TI_LTCG20",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Long term chargeable @\\s*20%[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_LTCG20"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_LTCGDTAA": {
+        "id": "TI_LTCGDTAA",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Long-term chargeable at special rates[\\s\\S]*?DTAA[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_LTCGDTAA"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_LTCGTotal": {
+        "id": "TI_LTCGTotal",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Total Long-term[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_LTCGTotal"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_CapitalGainsSum": {
+        "id": "TI_CapitalGainsSum",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Sum of Short-term / Long-term Capital Gains[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_CapitalGainsSum"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_CapitalGainsSpecial115BBH": {
+        "id": "TI_CapitalGainsSpecial115BBH",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Capital gains chargeable @\\s*30 % u/s 115BBH[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_CapitalGains115BBH"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_CapitalGainsTotal": {
+        "id": "TI_CapitalGainsTotal_3",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Total Capital Gains[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_CapitalGainsTotal"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_OtherSourcesNormal": {
+        "id": "TI_OtherSourcesNormal",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Net Income from Other sources[\\s\\S]*Normal Applicable rates[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_OtherSourcesNormal"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_OtherSourcesSpecial": {
+        "id": "TI_OtherSourcesSpecial",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Income chargeable to tax at special rates\\s*\\(2 of Schedule OS\\)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_OtherSourcesSpecial"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_RaceHorses": {
+        "id": "TI_RaceHorses",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Income from the activity of owning[\\s\\S]*race horses[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_RaceHorses"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_OtherSourcesTotal": {
+        "id": "TI_OtherSourcesTotal_4",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Total \\(4a \\+ 4b \\+ 4c\\)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_OtherSourcesTotal"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_TotalHeadWiseIncome": {
+        "id": "TI_TotalHeadWiseIncome_5",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Total of head wise income[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_TotalHeadWiseIncome"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_CurrentYearLossSetOff": {
+        "id": "TI_CurrentYearLossSetOff_6",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Losses of current year set off[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_CurrentYearLossSetOff"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_BalanceAfterCYLA": {
+        "id": "TI_BalanceAfterCYLA_7",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Balance after set off current year losses[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_BalanceAfterCYLA"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_BroughtForwardLossSetOff": {
+        "id": "TI_BroughtForwardLossSetOff_8",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Brought forward losses set off[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_BroughtForwardLossSetOff"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_GrossTotalIncome": {
+        "id": "TI_GrossTotalIncome_9",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Gross Total income[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_GrossTotalIncome"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_SpecialRateIncomeIncluded": {
+        "id": "TI_SpecialRateIncomeIncluded_10",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Income chargeable to tax at special rate under section\\s*111A,\\s*112[,]*\\s*112A[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_SpecialRateIncomeIncluded"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_DeductionsVIA": {
+        "id": "TI_DeductionsVIA_11",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Deductions under Chapter VI-A[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_DeductionsVIA"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_TotalIncome": {
+        "id": "TI_TotalIncome_12",
+        "HEADER_PATTERN": "PART B – TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Total income \\(9\\s*-\\s*11\\)[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_TotalIncome"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_SpecialRateIncomeTotal": {
+        "id": "TI_SpecialRateIncomeTotal_13",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Income which is included in 12 and chargeable to tax at special rates[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_SpecialRateIncomeTotal"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_AgriculturalIncome": {
+        "id": "TI_AgriculturalIncome_14",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Net agricultural income[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_AgriculturalIncome"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_AggregateIncome": {
+        "id": "TI_AggregateIncome_15",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Aggregate income[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_AggregateIncome"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_LossesCarriedForward": {
+        "id": "TI_LossesCarriedForward_16",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Losses of current year to be carried forward[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_LossesCarriedForward"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
+    },
+    "ScheduleTI_DeemedIncome115JC": {
+        "id": "TI_DeemedIncome115JC_17",
+        "HEADER_PATTERN": "TI COMPUTATION OF TOTAL INCOME",
+        "PATTERN": "Deemed income under section 115JC[\\s\\S]*?([0-9,\\.]+)",
+        "KEYS": [
+            "TI_DeemedIncome115JC"
+        ],
+        "TYPE": "NUMERIC",
+        "EXPECTED_ROW_LEN": 4
     }
 }
