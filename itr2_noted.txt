@@ -1,42 +1,59 @@
-ScheduleS Details of your Salary income.
-"ScheduleS_1": {
-        "id": "Gross_Salary",
-        "HEADER_PATTERN": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
-        "PATTERN": "Gross Salary.*?([\\d,\\.]+)",
-        "KEYS": [
-            "Gross_Salary"
-        ],
-        "TYPE": "NUMERIC",
-        "EXPECTED_ROW_LEN": 4
-    },
-    "B1_iii": {
-        "id": "Net_Salary",
-        "HEADER_PATTERN": "PART B GROSS TOTAL INCOME",
-        "PATTERN": "Net Salary.*?([\\d,\\.]+)",
-        "KEYS": [
-            "Net_Salary"
-        ],
-        "TYPE": "NUMERIC",
-        "EXPECTED_ROW_LEN": 4
-    },
-    "B1_v": {
-        "id": "Income_Chargeable_Salary",
-        "HEADER_PATTERN": "PART B GROSS TOTAL INCOME",
-        "PATTERN": "Income chargeable under the head 'Salaries'.*?([\\d,\\.]+)",
-        "KEYS": [
-            "Income_Chargeable_Salary"
-        ],
-        "TYPE": "NUMERIC",
-        "EXPECTED_ROW_LEN": 4
-    }
+Part A-GEN	Personal details and filing status.
+Schedule S	Details of your Salary income.
+Schedule HP	Details of income from House Property (rental income, interest on home loan).
+Schedule CG	Computation of Capital Gains (Long-Term and Short-Term).
+Schedule OS	Computation of Other Sources of income (bank interest, dividends, winnings).
+Schedule VIA	Details of Deductions claimed under Chapter VI-A (e.g., 80C, 80D).
+Schedule FA	Details of Foreign Assets and foreign income.
+Schedule AL	Assets and Liabilities (mandatory if total income exceeds ₹50 Lakh).
+Part B-TI & TTI	Final Computation of Total Income and Tax Liability.
 
+definitions.ScheduleS.required
 [
   "TotalGrossSalary",
   "AllwncExtentExemptUs10",
   "NetSalary",
   "DeductionUS16",
-  "DeductionUnderSection16ia",
-  "EntertainmntalwncUs16ii",
-  "ProfessionalTaxUs16iii",
+    "DeductionUnderSection16ia", -> exclude DeductionUS16
+    "EntertainmntalwncUs16ii", -> exclude DeductionUS16
+    "ProfessionalTaxUs16iii",-> exclude DeductionUS16
   "TotIncUnderHeadSalaries"
+]
+definitions.ScheduleCGFor23.required
+[
+ ShortTermCapGainFor23   → A9
+LongTermCapGain23       → B13
+SumOfCGIncm             → C1
+IncmFromVDATrnsf        → C2
+TotScheduleCGFor23      → C3
+CurrYrLosses            → E
+AccruOrRecOfCG          → F -> exclude Table
+]
+definitions.ScheduleOS.required
+[
+  "IncFrmLottery",
+  "DividendIncUs115BBDA",
+  "DividendIncUs115BBDAaiii",
+  "DividendIncUs115A1ai",
+  "DividendIncUs115AC",
+  "DividendIncUs115ACA",
+  "DividendIncUs115AD1i",
+  "DividendDTAA",
+  "NOT89A",
+  "IncChargeable"
+]
+definitions.ScheduleCYLA.required
+[
+  "STCG15Per",
+  "STCG20Per",
+  "STCG30Per",
+  "STCGAppRate",
+  "STCGDTAARate",
+  "LTCG10Per",
+  "LTCG12_5Per",
+  "LTCG20Per",
+  "LTCGDTAARate",
+  "TotalCurYr",
+  "TotalLossSetOff",
+  "LossRemAftSetOff"
 ]
