@@ -57,7 +57,7 @@ with top_cols[2]:
     st.metric(label="📁 OUTPUT files", value=total_count, delta=f"PDF: {pdf_count} | TXT: {txt_count} | XLSX: {xlsx_count}")
 
 # --- Form selection ---
-form_type = st.selectbox("Select ITR Form", ["ITR1"])
+form_type = st.selectbox("Select ITR Form", ["ITR1","ITR2"])
 config_path = f"config/{form_type}_config.json"
 
 # --- Result container class ---
