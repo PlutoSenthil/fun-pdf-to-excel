@@ -14,16 +14,6 @@
         "hdr_row_map": ["i"],
         "ftr_row_map": "iii"
     },
-    "PART_C": {
-        "start_pattern": "DEDUCTIONS AND TAXABLE TOTAL INCOME",
-        "hdr_row_map": ["Sl.No.", "Section", "Amount", "System Calculated"],
-        "ftr_row_map": "Total Income"
-    },
-    "PART_D": {
-        "start_pattern": "COMPUTATION OF TAX PAYABLE",
-        "hdr_row_map": ["D1"],
-        "ftr_row_map": "Refund"
-    },
     "PART_E": {
         "start_pattern": "PART E - OTHER INFORMATION",
         "ftr_row_map": "<empty_row_specific>",
