@@ -17,7 +17,7 @@ def process_pdf(input_file_path, output_file_path):
                         outfile.write(prt_str + '\n')
                     # cleaned_row = [element for element in row if element is not None and element != '']
                     cleaned_row = [element for element in row]
-                    outfile.write(str(index) + '|')
+                    outfile.write(str(index) + '|'+str(len(cleaned_row))+ '|')
                     index=index+1
                     if cleaned_row:
                         result.append(cleaned_row)

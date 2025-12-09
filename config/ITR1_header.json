@@ -41,6 +41,11 @@
             "(7)": "EligibleExemptAllowanceu/s10(13A)"
         }
     },
+    "SCHEDULE_80D": {
+        "start_pattern": "^SCHEDULE 80D$",
+        "hdr_row_map": ["1"],
+        "ftr_row_map": "Eligible Amount of Deduction"
+    },
     "SECTION_80U": {
         "start_pattern": "SECTION 80U - DETAILS OF DEDUCTION IN CASE OF A PERSON WITH DISABILITY",
         "ftr_row_map": "<empty_row_specific>",

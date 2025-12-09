@@ -30,13 +30,15 @@ class ITR1_SECTIONS:
             self.dataframes[section_name] = df_temp
         
         cols='Acknowledgement_Number'
+        ACK_DOF_PATTERN = re.compile(r"Acknowledgement Number\s*:\s*(\d+).*?" r"Date of Filing\s*:\s*([0-9A-Za-z\-]+)(?:\\*)*",re.IGNORECASE | re.DOTALL)
         for idx, row in enumerate(self.extracted_data):
-            row_content_str = " ".join(map(str, row))
-            if cols not in self.dataframes and re.search(cols, row_content_str, re.IGNORECASE):
-                non_none_elements = [[str(item) for item in row if item is not None]]
-                self.dataframes[cols] = pd.DataFrame(non_none_elements)
-                self.sections[cols]={"start":idx,"end":idx+1}
-                break
+            row_content_str = " ".join(str(item) for item in row if item is not None)
+            match = ACK_DOF_PATTERN.search(row_content_str)
+            if match:
+               self.acknowledgement = match.group(1).strip()
+               self.dof = match.group(2).strip()
+               self.sections[cols] = {"start": idx, "end": idx + 1}
+               break
     def get_section(self, section_name: str) -> pd.DataFrame:
         """Return the dataframe for a given section name."""
         return self.dataframes.get(section_name, pd.DataFrame())
