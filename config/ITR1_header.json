@@ -1,7 +1,7 @@
 {
     "EXEMPT_INCOME": {
-        "start_pattern": "EXEMPT INCOME: FOR REPORTING PURPOSE AND INCOME ON WHICH NO TAX IS PAYABLE",
-        "ftr_row_map": "Total Amount",
+        "start_pattern": "^EXEMPT INCOME",
+        "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
             "(2)": "Nature_of_Income",
@@ -140,8 +140,8 @@
         }
     },
     "SCHEDULE_80GGA": {
-        "start_pattern": "SCHEDULE 80GGA DETAILS OF DONATIONS FOR SCIENTIFIC RESEARCH OR RURAL DEVELOPMENT",
-        "ftr_row_map": "Total Donation",
+        "start_pattern": "SCHEDULE 80GGA",
+        "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
             "(2)": "RelevantClause",
@@ -172,7 +172,7 @@
         }
     },
     "SCHEDULE_IT": {
-        "start_pattern": "SCHEDULE IT - DETAILS OF ADVANCE TAX AND SELF ASSESSMENT TAX PAYMENTS",
+        "start_pattern": "TAX PAYMENTS",
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
@@ -208,7 +208,7 @@
         }
     },
     "SCHEDULE_TDS3": {
-        "start_pattern": "SCHEDULE TDS3 - DETAILS OF TAX DEDUCTED AT SOURCE",
+        "start_pattern": "SCHEDULE TDS3",
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
@@ -223,7 +223,7 @@
         }
     },
     "SCHEDULE_TCS": {
-        "start_pattern": "SCH TCS DETAILS OF TAX COLLECTED AT SOURCE",
+        "start_pattern": "^(SCHEDULE TCS|SCH TCS)",
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
