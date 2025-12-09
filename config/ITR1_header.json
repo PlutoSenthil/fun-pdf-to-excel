@@ -1,0 +1,248 @@
+{
+    "EXEMPT_INCOME": {
+        "start_pattern": "EXEMPT INCOME: FOR REPORTING PURPOSE AND INCOME ON WHICH NO TAX IS PAYABLE",
+        "ftr_row_map": "Total Amount",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "Nature_of_Income",
+            "(3)": "Description",
+            "(4)": "Amount"
+        }
+    },
+    "LTCG112A": {
+        "start_pattern": "^INCOME\\s+ON\\s+WHICH\\s+NO\\s+TAX\\s+IS\\s+PAYABLE:\\s+LONG\\s+TERM\\s+CAPITAL\\s+GAINS\\s+U/S\\s+112A\\s+NOT\\s+CHARGEABLE\\s+TO\\s+INCOME-TAX",
+        "hdr_row_map": ["i"],
+        "ftr_row_map": "iii"
+    },
+    "PART_C": {
+        "start_pattern": "DEDUCTIONS AND TAXABLE TOTAL INCOME",
+        "hdr_row_map": ["Sl.No.", "Section", "Amount", "System Calculated"],
+        "ftr_row_map": "Total Income"
+    },
+    "PART_D": {
+        "start_pattern": "COMPUTATION OF TAX PAYABLE",
+        "hdr_row_map": ["D1"],
+        "ftr_row_map": "Refund"
+    },
+    "PART_E": {
+        "start_pattern": "PART E - OTHER INFORMATION",
+        "ftr_row_map": "<empty_row_specific>",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "IFSCodeoftheBank",
+            "(3)": "NameoftheBank",
+            "(4)": "AccountNumber",
+            "(5)": "Typeofaccount",
+            "(6)": "SelectAccountforRefundCredit"
+        }
+    },
+    "ScheduleEA10_13A": {
+        "start_pattern": "SCHEDULE\\-10\\(13A\\) HOUSE RENT ALLOWANCE\\(HRA\\)",
+        "ftr_row_map": "<empty_row_specific>",
+        "table_header": {
+            "(1)": "Placeofwork",
+            "(2)": "ActualHRAreceived(A)",
+            "(3)": "ActualRentpaid",
+            "(4)": "DetailsofSalaryaspersection17(1)",
+            "(4a)": "BasicSalary",
+            "(4b)": "DearnessAllowance",
+            "(5)": "Actualrentpaid-10%ofsalary(B)(3-10%of4)",
+            "(6)": "50%/40%ofsalary",
+            "(7)": "EligibleExemptAllowanceu/s10(13A)"
+        }
+    },
+    "SECTION_80U": {
+        "start_pattern": "SECTION 80U - DETAILS OF DEDUCTION IN CASE OF A PERSON WITH DISABILITY",
+        "ftr_row_map": "<empty_row_specific>",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2a)": "NatureOfDisability",
+            "(2b)": "TypeOfDisability",
+            "(3)": "AmountOfDeduction",
+            "(4)": "Form10IA_AckNum",
+            "(5)": "UDID_Num"
+        }
+    },
+    "SECTION_80DD": {
+        "start_pattern": "SECTION 80DD - DETAILS OF DEDUCTION IN RESPECT OF MAINTENANCE INCLUDING MEDICAL TREATMENT OF A DEPENDENT",
+        "ftr_row_map": "<empty_row_specific>",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2a)": "NatureOfDisability",
+            "(2b)": "TypeOfDisability",
+            "(3)": "AmountOfDeduction",
+            "(4)": "DependentType",
+            "(5)": "DependentPan",
+            "(6)": "DependentAadhaar",
+            "(7)": "Form10IA_AckNum",
+            "(8)": "UDID_Num"
+        }
+    },
+    "SCHEDULE_80G_A": {
+        "start_pattern": "A. DONATIONS ENTITLED FOR 100% DEDUCTION WITHOUT QUALIFYING LIMIT",
+        "ftr_row_map": "Total A",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "NameofDonee",
+            "(3)": "Address",
+            "(4)": "City",
+            "(5)": "StateCode",
+            "(6)": "PinCode",
+            "(7)": "PANofDonee",
+            "(8)": "TotDon100PercentCash",
+            "(9)": "TotDon100PercentOtherMode",
+            "(10)": "TotDon100Percent",
+            "(11)": "TotEligibleDon100Percent"
+        }
+    },
+    "SCHEDULE_80G_B": {
+        "start_pattern": "B. DONATIONS ENTITLED FOR 50% DEDUCTION WITHOUT QUALIFYING LIMIT",
+        "ftr_row_map": "Total B",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "NameofDonee",
+            "(3)": "Address",
+            "(4)": "City",
+            "(5)": "StateCode",
+            "(6)": "PinCode",
+            "(7)": "PANofDonee",
+            "(8)": "<Empty>",
+            "(9)": "TotDon50PercentNoApprReqdCash",
+            "(10)": "TotDon50PercentNoApprReqdOtherMode",
+            "(11)": "TotDon50PercentNoApprReqd",
+            "(12)": "TotEligibleDon50Percent"
+        }
+    },
+    "SCHEDULE_80G_C": {
+        "start_pattern": "C. DONATIONS ENTITLED FOR 100% DEDUCTION SUBJECT TO QUALIFYING LIMIT",
+        "ftr_row_map": "Total C",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "NameofDonee",
+            "(3)": "Address",
+            "(4)": "City",
+            "(5)": "StateCode",
+            "(6)": "PinCode",
+            "(7)": "PANofDonee",
+            "(8)": "<Empty>",
+            "(9)": "TotDon100PercentApprReqdCash",
+            "(10)": "TotDon100PercentApprReqdOtherMode",
+            "(11)": "TotDon100PercentApprReqd",
+            "(12)": "TotEligibleDon100PercentApprReqd"
+        }
+    },
+    "SCHEDULE_80G_D": {
+        "start_pattern": "D. DONATIONS ENTITLED FOR 50% DEDUCTION SUBJECT TO QUALIFYING LIMIT",
+        "ftr_row_map": "Total D",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "NameofDonee",
+            "(3)": "Address",
+            "(4)": "City",
+            "(5)": "StateCode",
+            "(6)": "PinCode",
+            "(7)": "PANofDonee",
+            "(8)": "ARN(DonationReferenceNumber)",
+            "(9)": "TotDon100PercentApprReqdCash",
+            "(10)": "TotDon100PercentApprReqdOtherMode",
+            "(11)": "TotDon100PercentApprReqd",
+            "(12)": "TotEligibleDon100PercentApprReqd"
+        }
+    },
+    "SCHEDULE_80GGA": {
+        "start_pattern": "SCHEDULE 80GGA DETAILS OF DONATIONS FOR SCIENTIFIC RESEARCH OR RURAL DEVELOPMENT",
+        "ftr_row_map": "Total Donation",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "RelevantClause",
+            "(3)": "NameofDonee",
+            "(4)": "Address",
+            "(5)": "City",
+            "(6)": "StateCode",
+            "(7)": "PinCode",
+            "(8)": "PANofDonee",
+            "(9)": "TotalDonationAmtCash80GGA",
+            "(10)": "TotalDonationAmtOtherMode80GGA",
+            "(11)": "TotalDonationsUs80GGA",
+            "(12)": "TotalEligibleDonationAmt80GGA"
+        }
+    },
+    "SCHEDULE_80GGC": {
+        "start_pattern": "SCHEDULE 80GGC DETAILS OF CONTRIBUTION MADE TO POLITICAL PARTIES",
+        "ftr_row_map": "Total Contribution",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "Date",
+            "(3)": "TotalDonationAmtCash80GGC",
+            "(4)": "TotalDonationAmtOtherMode80GGC",
+            "(5)": "TotalDonationsUs80GGC",
+            "(6)": "TotalEligibleDonationAmt80GGC",
+            "(7)": "TransactionReference",
+            "(8)": "IFSCcode"
+        }
+    },
+    "SCHEDULE_IT": {
+        "start_pattern": "SCHEDULE IT - DETAILS OF ADVANCE TAX AND SELF ASSESSMENT TAX PAYMENTS",
+        "ftr_row_map": "Total",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "BSRCode",
+            "(3)": "DateofDeposit",
+            "(4)": "SerialNumberofChallan",
+            "(5)": "TaxPaid"
+        }
+    },
+    "SCHEDULE_TDS1": {
+        "start_pattern": "SCHEDULE TDS1 - DETAILS OF TAX DEDUCTED AT SOURCE FROM SALARY",
+        "ftr_row_map": "Total",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "TANofTheDeductor",
+            "(3)": "NameofDeductor",
+            "(4)": "IncomeChargeableSalaries",
+            "(5)": "TaxPaid"
+        }
+    },
+    "SCHEDULE_TDS2": {
+        "start_pattern": "SCHEDULE TDS2 - DETAILS OF TAX DEDUCTED AT SOURCE FROM INCOME OTHER THAN SALARY",
+        "ftr_row_map": "Total",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "TANofTheDeductor",
+            "(3a)": "NameofDeductor",
+            "(3b)": "SectionUnderTDSdeducted",
+            "(4)": "GrossReceipt",
+            "(5)": "YearofTaxDeduction",
+            "(6)": "TaxDeducted",
+            "(7)": "TDSCreditOutof(6)ClaimedThisYear"
+        }
+    },
+    "SCHEDULE_TDS3": {
+        "start_pattern": "SCHEDULE TDS3 - DETAILS OF TAX DEDUCTED AT SOURCE",
+        "ftr_row_map": "Total",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "PANoftheTenant",
+            "(3)": "AadhaarNumofTenant",
+            "(4a)": "NameoftheTenant",
+            "(4b)": "SectionUnderTDSdeducted",
+            "(5)": "GrossReceipt",
+            "(6)": "YearofTaxDeduction",
+            "(7)": "TaxDeducted",
+            "(8)": "TDSCreditOutof(7)ClaimedThisYear"
+        }
+    },
+    "SCHEDULE_TCS": {
+        "start_pattern": "SCH TCS DETAILS OF TAX COLLECTED AT SOURCE",
+        "ftr_row_map": "Total",
+        "table_header": {
+            "(1)": "RowNumber",
+            "(2)": "TaxCollectionAccountNumberoftheCollector",
+            "(3)": "Name of theCollector",
+            "(4)": "GrossPaymentTaxCollection",
+            "(5)": "YearofTaxCollection",
+            "(6)": "TaxCollected",
+            "(7)": "TDSCreditOutof(6)ClaimedThisYear"
+        }
+    }
+}

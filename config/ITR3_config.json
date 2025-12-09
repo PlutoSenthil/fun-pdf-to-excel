@@ -1,0 +1,137 @@
+{
+    "Meta_AssessmentYear": {
+        "id": "Assessment_Year",
+        "HEADER_PATTERN": "FORM\\s*ITR",
+        "PATTERN": "Assessment Year\\s*([0-9\\-]+)",
+        "KEYS": [
+            "Assessment_Year"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_FormType": {
+        "id": "Form_Type",
+        "HEADER_PATTERN": "FORM\\s*ITR",
+        "PATTERN": "FORM\\s*(ITR[0-9A-Za-z\\-]+)",
+        "KEYS": [
+            "Form_Type"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Acknowledgement": {
+        "id": "Acknowledgement_Number",
+        "HEADER_PATTERN": "Acknowledgement Number",
+        "PATTERN": "Acknowledgement Number\\s*:\\s*(\\d+)",
+        "KEYS": [
+            "Acknowledgement_Number"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_DateOfFiling": {
+        "id": "Date_of_Filing",
+        "HEADER_PATTERN": "Date of Filing",
+        "PATTERN": "Date of Filing\\s*:\\s*([0-9A-Za-z\\-]+)\\*?",
+        "KEYS": [
+            "Date_of_Filing"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_PAN": {
+        "id": "PAN",
+        "HEADER_PATTERN": "PART A-GEN",
+        "PATTERN": "PAN\\s*([A-Z0-9]+)",
+        "KEYS": [
+            "PAN"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_First_Name": {
+        "id": "First_Name",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "First Name\\n(.+?)",
+        "KEYS": [
+            "First_Name"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Middle_Name": {
+        "id": "Middle_Name",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "Middle Name\\s+(.+?)\\s*\\(A3\\)",
+        "KEYS": [
+            "Middle_Name"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Last_Name": {
+        "id": "Last_Name",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "Last Name\\s+(.+?)(?=\\s*\\(A4\\)|$)",
+        "KEYS": [
+            "Last_Name"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Date_of_Birth": {
+        "id": "Date_of_Birth",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "Date of Birth\\n([\\d/]+)",
+        "KEYS": [
+            "Date_of_Birth"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Aadhaar_Number": {
+        "id": "Aadhaar_Number",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "Aadhaar Number.*?\\n([\\d\\sx]+)",
+        "KEYS": [
+            "Aadhaar_Number"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Mobile_No": {
+        "id": "Mobile_No",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "Mobile No\\n([\\d\\s+]+)",
+        "KEYS": [
+            "Mobile_No"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Email_Address": {
+        "id": "Email_Address",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "Email Address\\n([\\w@.]+)",
+        "KEYS": [
+            "Email_Address"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_State": {
+        "id": "State",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "State\\n([\\d-]+[A-Za-z]+)",
+        "KEYS": [
+            "State"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_Country_Region": {
+        "id": "Country_Region",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "Country/Region\\n([\\d-]+[A-Za-z]+)",
+        "KEYS": [
+            "Country_Region"
+        ],
+        "TYPE": "STRING"
+    },
+    "Meta_PIN_Code_ZIP_Code": {
+        "id": "PIN_Code_ZIP_Code",
+        "HEADER_PATTERN": "PART A GENERAL INFORMATION",
+        "PATTERN": "PIN Code/ZIP Code\\n([\\d]+)",
+        "KEYS": [
+            "PIN_Code_ZIP_Code"
+        ],
+        "TYPE": "STRING"
+    }
+}
