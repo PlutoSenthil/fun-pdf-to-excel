@@ -39,6 +39,7 @@ class ITR1_SECTIONS:
                self.dof = match.group(2).strip()
                self.sections[cols] = {"start": idx, "end": idx + 1}
                break
+            
     def get_section(self, section_name: str) -> pd.DataFrame:
         """Return the dataframe for a given section name."""
         return self.dataframes.get(section_name, pd.DataFrame())

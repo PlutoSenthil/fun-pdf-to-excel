@@ -64,7 +64,8 @@ def extract_sections(data, start_pattern: dict, end_pattern: dict, hdr_row_map: 
     EXCLUSION_PATTERNS = {"<empty_row_specific>", ""}
 
     for idx, row in enumerate(data):
-        row_content_str = " ".join(map(str, row))
+        # row_content_str = " ".join(map(str, row))
+        row_content_str = " ".join(str(item) for item in row if item is not None)
         # print(row_content_str)
         # --- 1. Detect Start Pattern Match (Section Name) ---
         if row[0] and isinstance(row[0], str):
