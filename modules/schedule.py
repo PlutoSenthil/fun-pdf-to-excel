@@ -12,7 +12,9 @@ class ITR1_SECTIONS:
 
         # Step 1: Process PDF
         self.extracted_data = process_pdf(self.input_file_path, self.output_file_path)
-
+        
+        self.ack_dof_pan()
+        self.hdr = [self.acknowledgement,self.dof,self.pan_number]
         # Step 2: Load config
         with open(self.config_path, "r", encoding="utf-8") as f:
             self.config = json.load(f)
@@ -32,8 +34,9 @@ class ITR1_SECTIONS:
             df_temp = pd.DataFrame(self.extracted_data[start:end])
             df_temp = clean_row(df_temp)
             df_temp = apply_dynamic_headers(df_temp, self.config,section_name)
-            self.dataframes[section_name] = df_temp
-        
+            self.dataframes[section_name] = self.header_to_data_row(df_temp)
+    
+    def ack_dof_pan(self):
         ack_dof_found = False
         pan_found = False
         cols='Acknowledgement_Number'
@@ -68,6 +71,16 @@ class ITR1_SECTIONS:
         """Return the dataframe for a given section name."""
         return self.dataframes.get(section_name, pd.DataFrame())
     
+    def header_to_data_row(self,df):
+        header_as_list = df.columns.tolist()
+        new_cols = list(range(len(header_as_list)))
+        header_row_df = pd.DataFrame([header_as_list], columns=new_cols)
+        df.columns = new_cols
+        hdr_row_df = pd.DataFrame([self.hdr], columns=list(range(len(self.hdr))))
+        df_processed = pd.concat([hdr_row_df,header_row_df], ignore_index=True)
+        df_processed = pd.concat([df_processed, df.copy()], ignore_index=True)
+        return df_processed
+
     def export_to_excel(self, output_excel_path: str) -> str:
         if not self.dataframes:
             return "No dataframes found to export."
