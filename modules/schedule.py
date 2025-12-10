@@ -5,11 +5,16 @@ from modules.process_pdf import process_pdf
 from modules.extract_logic import clean_row,extract_sections,apply_dynamic_headers
 class ITR1_SECTIONS:
     def __init__(self, input_file_path: str, output_file_path: str, config_path: str):
+        
+        self.input_file_path = input_file_path
+        self.output_file_path = output_file_path
+        self.config_path = config_path
+
         # Step 1: Process PDF
-        self.extracted_data = process_pdf(input_file_path, output_file_path)
+        self.extracted_data = process_pdf(self.input_file_path, self.output_file_path)
 
         # Step 2: Load config
-        with open(config_path, "r", encoding="utf-8") as f:
+        with open(self.config_path, "r", encoding="utf-8") as f:
             self.config = json.load(f)
 
         # Step 3: Build section prefix mapping
@@ -29,16 +34,35 @@ class ITR1_SECTIONS:
             df_temp = apply_dynamic_headers(df_temp, self.config,section_name)
             self.dataframes[section_name] = df_temp
         
+        ack_dof_found = False
+        pan_found = False
         cols='Acknowledgement_Number'
+        self.acknowledgement = None
         ACK_DOF_PATTERN = re.compile(r"Acknowledgement Number\s*:\s*(\d+).*?" r"Date of Filing\s*:\s*([0-9A-Za-z\-]+)(?:\\*)*",re.IGNORECASE | re.DOTALL)
+        PAN_PATTERN = re.compile(r"\(A1\)\s*PAN\s+(.+?)\s*\(A2\)", re.IGNORECASE | re.DOTALL)
         for idx, row in enumerate(self.extracted_data):
             row_content_str = " ".join(str(item) for item in row if item is not None)
-            match = ACK_DOF_PATTERN.search(row_content_str)
-            if match:
-               self.acknowledgement = match.group(1).strip()
-               self.dof = match.group(2).strip()
-               self.sections[cols] = {"start": idx, "end": idx + 1}
-               break
+            # 1. Search for Acknowledgement Number and Date of Filing
+            if not ack_dof_found:
+                match_ack_dof = ACK_DOF_PATTERN.search(row_content_str)
+                if match_ack_dof:
+                    self.acknowledgement = match_ack_dof.group(1).strip()
+                    self.dof = match_ack_dof.group(2).strip()
+                    # self.sections['Acknowledgement_Number'] = {"start": idx, "end": idx + 1}
+                    ack_dof_found = True
+
+            # 2. Search for PAN
+            if not pan_found:
+                match_pan = PAN_PATTERN.search(row_content_str)
+                if match_pan:
+                    # Note: The pattern (.+?) captures the PAN value
+                    self.pan_number = match_pan.group(1).strip()
+                    # self.sections['PAN_Number'] = {"start": idx, "end": idx + 1}
+                    pan_found = True
+
+            # 3. Check if both are found, then stop iteration
+            if ack_dof_found and pan_found:
+                break
             
     def get_section(self, section_name: str) -> pd.DataFrame:
         """Return the dataframe for a given section name."""
