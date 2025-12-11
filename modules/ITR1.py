@@ -1,5 +1,5 @@
 from modules.process_pdf import process_pdf
-from extract_logic import clean_and_prepend_none,apply_dynamic_headers,is_empty_row_specific,clean_row
+from modules.helper import clean_and_prepend_none,apply_dynamic_headers,is_empty_row_specific,clean_row
 import pandas as pd
 import json,re,os
 
