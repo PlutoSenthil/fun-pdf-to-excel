@@ -1,17 +1,26 @@
-import streamlit as st
-import os
-from modules.ITR1 import ITR1BatchProcessor  # adjust if your class lives elsewhere (e.g., modules.schedule)
 
-# --- Basic setup ---
+import os
+import sys
+import streamlit as st
+
+# --- Ensure project root is on sys.path (does not change any business logic) ---
+ROOT = os.path.dirname(os.path.abspath(__file__))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+# --- Your imports exactly as you stated ---
+from modules.ITR1 import ITR1BatchProcessor
+# (No need to import extract_logic here; ITR1.py already imports it)
+
+# --- Constants ---
 INPUT_DIR = "INPUT"
 CONFIG_DIR = "config"
+
 os.makedirs(INPUT_DIR, exist_ok=True)
 os.makedirs(CONFIG_DIR, exist_ok=True)
 
 def get_config_map():
-    """
-    Returns { 'ITR1': 'config/ITR1_header.json', ... } for files in config/
-    """
+    """Map 'ITR1' -> 'config/ITR1_header.json' for files in config/ ending with '_header.json'."""
     options = {}
     for fname in os.listdir(CONFIG_DIR):
         if fname.lower().endswith("_header.json"):
@@ -19,35 +28,36 @@ def get_config_map():
             options[key] = os.path.join(CONFIG_DIR, fname)
     return options
 
-st.set_page_config(page_title=" Preview (Minimal)", page_icon="📄", layout="centered")
+# --- UI ---
+st.set_page_config(page_title=" Metadata Preview", page_icon="📄", layout="centered")
 st.title("📄  Metadata Preview (Minimal)")
 
-# --- Config selection ---
+# Config dropdown (kept simple)
 config_map = get_config_map()
-selected_form = st.selectbox("Select  form", options=sorted(config_map.keys()))
+selected_form = st.selectbox(
+    "Select  form",
+    options=sorted(config_map.keys()) if config_map else [],
+)
 config_path = config_map.get(selected_form)
 
-# --- Upload PDFs to INPUT ---
+# Upload PDFs (saved into INPUT)
 uploaded_files = st.file_uploader("Upload  PDFs", type=["pdf"], accept_multiple_files=True)
 if uploaded_files:
-    count = 0
     for f in uploaded_files:
         save_path = os.path.join(INPUT_DIR, f.name)
         with open(save_path, "wb") as out:
             out.write(f.getbuffer())
-        count += 1
-    st.success(f"Uploaded {count} file(s) into `{INPUT_DIR}`.")
+    st.success(f"Uploaded {len(uploaded_files)} file(s) into `{INPUT_DIR}`.")
 
-# --- Extract & preview metadata_df ---
+# Extract + Preview
 if st.button("Extract & Preview"):
     if not config_path:
-        st.error("Please select an  config.")
+        st.error("Please select a config (e.g., ITR1_header.json).")
     else:
+        # No logic changes: run the same processor calls you use
         processor = ITR1BatchProcessor(INPUT_DIR, config_path)
-        processor.process_all()  # no logic change
-        metadata_df = processor.metadata()  # your exact call
+        processor.process_all()
+        metadata_df = processor.metadata()
 
-        st.subheader("Extracted Metadata")
-        # Show the full dataframe, or uncomment the next line to show common columns only:
-        # st.dataframe(metadata_df[["ack", "pan", "dof", "sections"]])
-        st.dataframe(metadata_df)
+        st.subheader("metadata_df")
+       
