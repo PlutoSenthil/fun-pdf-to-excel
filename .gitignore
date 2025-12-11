@@ -13,4 +13,5 @@ Thumbs.db
 # Streamlit cache (optional)
 .streamlit/
 OUTPUT/
+INPUT/
 ``
