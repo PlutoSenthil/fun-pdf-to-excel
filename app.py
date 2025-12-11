@@ -108,6 +108,7 @@ if uploaded_files:
                     extracted_rows = process_pdf(str(input_path), output_path)
 
                     # Apply regex config logic
+               
                     result = extract_data(extracted_rows, config_path)
 
                     # Key fields for grouping/index
