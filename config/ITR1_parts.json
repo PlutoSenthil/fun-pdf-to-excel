@@ -1,8 +1,0 @@
-{
-    "PART_B": {
-        "table_start_ptr": "PART B GROSS TOTAL INCOME",
-        "hdr_row_map": ["B1"],
-        "ftr_row_map": "Gross Total Income",
-        "indentation":"B"
-    }
-}

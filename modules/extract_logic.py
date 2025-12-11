@@ -39,6 +39,16 @@ def is_empty_row_specific(row):
         return all(v is None for v in row[1:])
     return False
 
+def clean_and_prepend_none(data_slice,startswith):
+    cleaned_slice = []
+    for sublist in data_slice:
+        cleaned_sublist = [item.replace('\n', ' ') if isinstance(item, str) else item for item in sublist if item]    
+        prepend_none = False
+        if cleaned_sublist and isinstance(cleaned_sublist[0], str):
+            if not cleaned_sublist[0].startswith(tuple(startswith)):prepend_none = True
+        if prepend_none:cleaned_slice.append([None] + cleaned_sublist)
+        else:cleaned_slice.append(cleaned_sublist)
+    return cleaned_slice
 
 def apply_dynamic_headers(
     df_temp: pd.DataFrame, config: Dict[str, Any], section_name: str
@@ -56,61 +66,61 @@ def apply_dynamic_headers(
     return df_temp
 
 
-def extract_sections(data, start_pattern: dict, end_pattern: dict, hdr_row_map: dict):
-    sections = {}
-    current_section = None
-    start_index = None
-    total_row = len(data)  # Total number of rows
-    EXCLUSION_PATTERNS = {"<empty_row_specific>", ""}
+# def extract_sections(data, start_pattern: dict, end_pattern: dict, hdr_row_map: dict):
+#     sections = {}
+#     current_section = None
+#     start_index = None
+#     total_row = len(data)  # Total number of rows
+#     EXCLUSION_PATTERNS = {"<empty_row_specific>", ""}
 
-    for idx, row in enumerate(data):
-        # row_content_str = " ".join(map(str, row))
-        row_content_str = " ".join(str(item) for item in row if item is not None)
-        # print(row_content_str)
-        # --- 1. Detect Start Pattern Match (Section Name) ---
-        if row[0] and isinstance(row[0], str):
-            for section_name, start in start_pattern.items():
-                if re.search(start, row_content_str, re.IGNORECASE):
-                    # print(start[:20],"##",row_content_str[:20])
-                    current_section = section_name
-                    start_index = None  # reset until we see '(1)' row
-                    break
+#     for idx, row in enumerate(data):
+#         # row_content_str = " ".join(map(str, row))
+#         row_content_str = " ".join(str(item) for item in row if item is not None)
+#         # print(row_content_str)
+#         # --- 1. Detect Start Pattern Match (Section Name) ---
+#         if row and row[0] and isinstance(row[0], str):
+#             for section_name, start in start_pattern.items():
+#                 if re.search(start, row_content_str, re.IGNORECASE):
+#                     # print(start[:20],"##",row_content_str[:20])
+#                     current_section = section_name
+#                     start_index = None  # reset until we see '(1)' row
+#                     break
 
-        # --- 2. Detect True Start Index (Row with '(1)') ---
-        if current_section and not start_index:
-            if row[0] !="" and any(hdr in row for hdr in hdr_row_map.get(current_section,[])):
-                # print(row_content_str)
-                start_index = idx
-                continue  # Skip end-detection for the row that sets start_index
+#         # --- 2. Detect True Start Index (Row with '(1)') ---
+#         if current_section and not start_index:
+#             if row and row[0] !="" and any(hdr in row for hdr in hdr_row_map.get(current_section,[])):
+#                 # print(row_content_str)
+#                 start_index = idx
+#                 continue  # Skip end-detection for the row that sets start_index
 
-        # --- 3. Detect End of Section ---
-        end = end_pattern.get(current_section, None)
+#         # --- 3. Detect End of Section ---
+#         end = end_pattern.get(current_section, None)
 
-        # Determine the section's actual end index (idx + 1, capped at total_row)
-        # This is the index *after* the current row (idx)
-        section_end_index = min(idx + 1, total_row)
+#         # Determine the section's actual end index (idx + 1, capped at total_row)
+#         # This is the index *after* the current row (idx)
+#         section_end_index = min(idx + 1, total_row)
 
-        if current_section and start_index:
-            # print(start_index)
-            is_end_pattern_match = (
-                end
-                and end not in EXCLUSION_PATTERNS
-                and re.search(end, row_content_str, re.IGNORECASE)
-            )
+#         if current_section and start_index:
+            
+#             is_end_pattern_match = (
+#                 end
+#                 and end not in EXCLUSION_PATTERNS
+#                 and re.search(end, row_content_str, re.IGNORECASE)
+#             )
 
-            is_specific_empty_row = (
-                end == "<empty_row_specific>" and is_empty_row_specific(row)
-            )
+#             is_specific_empty_row = (
+#                 end == "<empty_row_specific>" and is_empty_row_specific(row)
+#             )
+#             # print(row_content_str,"&&&",is_end_pattern_match)
+#             if is_end_pattern_match or is_specific_empty_row:
+#                 sections[current_section] = {
+#                     "start": start_index,
+#                     "end": section_end_index,
+#                 }
+#                 current_section = None
+#                 start_index = None
 
-            if is_end_pattern_match or is_specific_empty_row:
-                sections[current_section] = {
-                    "start": start_index,
-                    "end": section_end_index,
-                }
-                current_section = None
-                start_index = None
-
-    return sections
+#     return sections
 
 
 def extract_data(extracted_rows, config_path):
