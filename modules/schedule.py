@@ -51,7 +51,7 @@ class ITR1Sections(PDFPipeline):
         self.save_debug("metadata", {"ack": self.ack, "dof": self.dof, "pan": self.pan})
 
         # Build patterns
-        self.start_patterns = {k: v["start_pattern"] for k, v in self.config.items()}
+        self.start_patterns = {k: v["table_start_ptr"] for k, v in self.config.items()}
         self.end_patterns = {k: v["ftr_row_map"] for k, v in self.config.items() if not pd.isna(v["ftr_row_map"])}
         self.hdr_map = {k: v.get("hdr_row_map", ["(1)"]) for k, v in self.config.items()}
 

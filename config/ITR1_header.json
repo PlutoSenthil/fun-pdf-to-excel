@@ -1,6 +1,7 @@
 {
     "EXEMPT_INCOME": {
-        "start_pattern": "^EXEMPT INCOME",
+        "table_start_ptr": "^EXEMPT INCOME",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
@@ -10,12 +11,13 @@
         }
     },
     "LTCG112A": {
-        "start_pattern": "^INCOME\\s+ON\\s+WHICH\\s+NO\\s+TAX\\s+IS\\s+PAYABLE:\\s+LONG\\s+TERM\\s+CAPITAL\\s+GAINS\\s+U/S\\s+112A\\s+NOT\\s+CHARGEABLE\\s+TO\\s+INCOME-TAX",
+        "table_start_ptr": "^INCOME\\s+ON\\s+WHICH\\s+NO\\s+TAX\\s+IS\\s+PAYABLE:\\s+LONG\\s+TERM\\s+CAPITAL\\s+GAINS\\s+U/S\\s+112A\\s+NOT\\s+CHARGEABLE\\s+TO\\s+INCOME-TAX",
         "hdr_row_map": ["i"],
         "ftr_row_map": "iii"
     },
     "PART_E": {
-        "start_pattern": "PART E - OTHER INFORMATION",
+        "table_start_ptr": "PART E - OTHER INFORMATION",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "<empty_row_specific>",
         "table_header": {
             "(1)": "RowNumber",
@@ -27,7 +29,8 @@
         }
     },
     "ScheduleEA10_13A": {
-        "start_pattern": "SCHEDULE\\-10\\(13A\\) HOUSE RENT ALLOWANCE\\(HRA\\)",
+        "table_start_ptr": "SCHEDULE\\-10\\(13A\\) HOUSE RENT ALLOWANCE\\(HRA\\)",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "<empty_row_specific>",
         "table_header": {
             "(1)": "Placeofwork",
@@ -42,12 +45,13 @@
         }
     },
     "SCHEDULE_80D": {
-        "start_pattern": "^SCHEDULE 80D$",
+        "table_start_ptr": "^SCHEDULE 80D$",
         "hdr_row_map": ["1"],
         "ftr_row_map": "Eligible Amount of Deduction"
     },
     "SECTION_80U": {
-        "start_pattern": "SECTION 80U - DETAILS OF DEDUCTION IN CASE OF A PERSON WITH DISABILITY",
+        "table_start_ptr": "SECTION 80U - DETAILS OF DEDUCTION IN CASE OF A PERSON WITH DISABILITY",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "<empty_row_specific>",
         "table_header": {
             "(1)": "RowNumber",
@@ -59,7 +63,8 @@
         }
     },
     "SECTION_80DD": {
-        "start_pattern": "SECTION 80DD - DETAILS OF DEDUCTION IN RESPECT OF MAINTENANCE INCLUDING MEDICAL TREATMENT OF A DEPENDENT",
+        "table_start_ptr": "SECTION 80DD - DETAILS OF DEDUCTION IN RESPECT OF MAINTENANCE INCLUDING MEDICAL TREATMENT OF A DEPENDENT",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "<empty_row_specific>",
         "table_header": {
             "(1)": "RowNumber",
@@ -74,7 +79,8 @@
         }
     },
     "SCHEDULE_80G_A": {
-        "start_pattern": "A. DONATIONS ENTITLED FOR 100% DEDUCTION WITHOUT QUALIFYING LIMIT",
+        "table_start_ptr": "A. DONATIONS ENTITLED FOR 100% DEDUCTION WITHOUT QUALIFYING LIMIT",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total A",
         "table_header": {
             "(1)": "RowNumber",
@@ -91,7 +97,8 @@
         }
     },
     "SCHEDULE_80G_B": {
-        "start_pattern": "B. DONATIONS ENTITLED FOR 50% DEDUCTION WITHOUT QUALIFYING LIMIT",
+        "table_start_ptr": "B. DONATIONS ENTITLED FOR 50% DEDUCTION WITHOUT QUALIFYING LIMIT",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total B",
         "table_header": {
             "(1)": "RowNumber",
@@ -109,7 +116,8 @@
         }
     },
     "SCHEDULE_80G_C": {
-        "start_pattern": "C. DONATIONS ENTITLED FOR 100% DEDUCTION SUBJECT TO QUALIFYING LIMIT",
+        "table_start_ptr": "C. DONATIONS ENTITLED FOR 100% DEDUCTION SUBJECT TO QUALIFYING LIMIT",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total C",
         "table_header": {
             "(1)": "RowNumber",
@@ -127,7 +135,8 @@
         }
     },
     "SCHEDULE_80G_D": {
-        "start_pattern": "D. DONATIONS ENTITLED FOR 50% DEDUCTION SUBJECT TO QUALIFYING LIMIT",
+        "table_start_ptr": "D. DONATIONS ENTITLED FOR 50% DEDUCTION SUBJECT TO QUALIFYING LIMIT",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total D",
         "table_header": {
             "(1)": "RowNumber",
@@ -145,7 +154,8 @@
         }
     },
     "SCHEDULE_80GGA": {
-        "start_pattern": "SCHEDULE 80GGA",
+        "table_start_ptr": "SCHEDULE 80GGA",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
@@ -163,7 +173,8 @@
         }
     },
     "SCHEDULE_80GGC": {
-        "start_pattern": "SCHEDULE 80GGC DETAILS OF CONTRIBUTION MADE TO POLITICAL PARTIES",
+        "table_start_ptr": "SCHEDULE 80GGC DETAILS OF CONTRIBUTION MADE TO POLITICAL PARTIES",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total Contribution",
         "table_header": {
             "(1)": "RowNumber",
@@ -177,7 +188,8 @@
         }
     },
     "SCHEDULE_IT": {
-        "start_pattern": "TAX PAYMENTS",
+        "table_start_ptr": "TAX PAYMENTS",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
@@ -188,7 +200,8 @@
         }
     },
     "SCHEDULE_TDS1": {
-        "start_pattern": "SCHEDULE TDS1 - DETAILS OF TAX DEDUCTED AT SOURCE FROM SALARY",
+        "table_start_ptr": "SCHEDULE TDS1 - DETAILS OF TAX DEDUCTED AT SOURCE FROM SALARY",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
@@ -199,7 +212,8 @@
         }
     },
     "SCHEDULE_TDS2": {
-        "start_pattern": "SCHEDULE TDS2 - DETAILS OF TAX DEDUCTED AT SOURCE FROM INCOME OTHER THAN SALARY",
+        "table_start_ptr": "SCHEDULE TDS2 - DETAILS OF TAX DEDUCTED AT SOURCE FROM INCOME OTHER THAN SALARY",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
@@ -213,7 +227,8 @@
         }
     },
     "SCHEDULE_TDS3": {
-        "start_pattern": "SCHEDULE TDS3",
+        "table_start_ptr": "SCHEDULE TDS3",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
@@ -228,7 +243,8 @@
         }
     },
     "SCHEDULE_TCS": {
-        "start_pattern": "^(SCHEDULE TCS|SCH TCS)",
+        "table_start_ptr": "^(SCHEDULE TCS|SCH TCS)",
+        "hdr_row_map": ["(1)"],
         "ftr_row_map": "Total",
         "table_header": {
             "(1)": "RowNumber",
