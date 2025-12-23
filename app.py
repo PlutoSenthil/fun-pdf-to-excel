@@ -129,30 +129,30 @@ if uploaded_files:
 st.divider()
 
 # --- Extract & Preview (with progress bar) ---
-if st.button("🔍 Extract & Preview"):
-    if not config_path:
-        st.error("Please select a config (e.g., ITR1).")
-    else:
-        pbar = st.progress(0, text="Starting extraction...")
-        try:
-            pbar.progress(30, text="Initializing processor...")
-            processor = get_or_create_processor(config_path)
+# if st.button("🔍 Extract & Preview"):
+#     if not config_path:
+#         st.error("Please select a config (e.g., ITR1).")
+#     else:
+#         pbar = st.progress(0, text="Starting extraction...")
+#         try:
+#             pbar.progress(30, text="Initializing processor...")
+#             processor = get_or_create_processor(config_path)
 
-            pbar.progress(60, text="Processing PDFs...")
-            processor.process_all()
-            st.session_state.processed = True
+#             pbar.progress(60, text="Processing PDFs...")
+#             processor.process_all()
+#             st.session_state.processed = True
 
-            pbar.progress(100, text="Extraction complete.")
+#             pbar.progress(100, text="Extraction complete.")
 
-            # Minimal preview (optional)
-            st.subheader("metadata_df")
-            metadata_df = processor.metadata()
-            st.dataframe(metadata_df)
-        except Exception as e:
-            pbar.progress(0)
-            st.error(f"Extraction failed: {e}")
+#             # Minimal preview (optional)
+#             st.subheader("metadata_df")
+#             metadata_df = processor.metadata()
+#             st.dataframe(metadata_df)
+#         except Exception as e:
+#             pbar.progress(0)
+#             st.error(f"Extraction failed: {e}")
 
-st.divider()
+# st.divider()
 
 # --- Export & Download (ZIP of Excel) with progress bar ---
 if st.button("📦 Export & Download (ZIP)"):
@@ -164,11 +164,19 @@ if st.button("📦 Export & Download (ZIP)"):
             pbar.progress(20, text="Initializing processor...")
             processor = get_or_create_processor(config_path)
 
-            # Process only if needed
-            if not st.session_state.processed:
-                pbar.progress(40, text="Processing PDFs...")
-                processor.process_all()
-                st.session_state.processed = True
+            pbar.progress(40, text="Processing PDFs...")
+            processor.process_all()
+            st.session_state.processed = True
+            # # Process only if needed
+            # if not st.session_state.processed:
+            #     pbar.progress(40, text="Processing PDFs...")
+            #     processor.process_all()
+            #     st.session_state.processed = True
+
+            # Minimal preview (optional)
+            pbar.progress(50, text="metadata_df")
+            metadata_df = processor.metadata()
+            st.dataframe(metadata_df)
 
             pbar.progress(60, text="Exporting Excel by PAN...")
             processor.export_by_pan()
