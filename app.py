@@ -62,7 +62,7 @@ with u1:
         st.success("INPUT folder cleared.")
 with u2:
     if st.button("🔄 Refresh (clear upload selection)"):
-        st.experimental_rerun()
+        st.rerun()
 
 # Config dropdown (simple)
 config_map = get_config_map()
