@@ -163,7 +163,7 @@ class ITR1Sections(PDFPipeline):
     # ---------------------------------------------------------
     def build_all_sections(self):
         dfs = {}
-        hdr = [ "Date of Filing"+str(self.dof),"Acknowledgement"+str(self.ack), "PAN"+str(self.pan)]
+        hdr = [ "Date of Filing: "+str(self.dof),"Acknowledgement: "+str(self.ack), "PAN: "+str(self.pan)]
 
         for name, meta in self.sections.items():
             start, end = meta["start"], meta["end"]
@@ -290,11 +290,9 @@ class ITR1BatchProcessor:
                         # Auto column width
                         worksheet = writer.sheets[section]
                         for idx, col in enumerate(final_df.columns):
-                            max_len = max(
-                                [len(str(col))]
-                                + [len(str(val)) for val in final_df[col].values]
-                            )
-                            worksheet.set_column(idx, idx, max(max_len + 2,60))
+                            column_data_max = final_df[col].astype(str).str.len().max()
+                            max_len = max(len(str(col)), column_data_max)
+                            worksheet.set_column(idx, idx,min(max_len + 2,60))
 
             print(f"✅ Exported {output_file}")
 
