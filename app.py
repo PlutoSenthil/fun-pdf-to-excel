@@ -7,24 +7,25 @@ import zipfile
 import shutil
 import streamlit as st
 
-# --- Ensure project root is on sys.path (no business logic changes) ---
+# ----------------- Ensure project root on sys.path -----------------
 ROOT = os.path.dirname(os.path.abspath(__file__))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-# --- Your imports exactly as you stated ---
+# ----------------- Your business logic import ---------------------
 from modules.ITR1 import ITR1BatchProcessor
-# (modules/ITR1.py imports extract_logic itself)
 
-# --- Constants ---
+# ----------------- Constants --------------------------------------
 INPUT_DIR = "INPUT"
 CONFIG_DIR = "config"
 os.makedirs(INPUT_DIR, exist_ok=True)
 os.makedirs(CONFIG_DIR, exist_ok=True)
 
-# --- Helpers ---
+# ----------------- Helpers ----------------------------------------
 def get_config_map():
-    """Map 'ITR1' -> 'config/ITR1_header.json' for files in config/ ending with '_header.json'."""
+    """
+    Map 'ITR1' -> 'config/ITR1_header.json' for files in config/ ending with '_header.json'.
+    """
     options = {}
     for fname in os.listdir(CONFIG_DIR):
         if fname.lower().endswith("_header.json"):
@@ -33,7 +34,10 @@ def get_config_map():
     return options
 
 def zip_excels_in_memory(dir_path):
-    """Create an in-memory ZIP of all .xlsx files in dir_path."""
+    """
+    Create an in-memory ZIP of all .xlsx files in dir_path.
+    Returns (bytes_or_None, count).
+    """
     files = sorted(glob.glob(os.path.join(dir_path, "*.xlsx")))
     if not files:
         return None, 0
@@ -45,23 +49,60 @@ def zip_excels_in_memory(dir_path):
     return buf.getvalue(), len(files)
 
 def clear_input_dir():
-    """Delete INPUT folder and recreate it empty."""
+    """
+    Delete INPUT folder and recreate it empty.
+    """
     if os.path.isdir(INPUT_DIR):
         shutil.rmtree(INPUT_DIR)
     os.makedirs(INPUT_DIR, exist_ok=True)
 
-# --- UI ---
+def ensure_session_keys():
+    """
+    Initialize session_state keys used by the app.
+    """
+    if "processor" not in st.session_state:
+        st.session_state.processor = None
+    if "processed" not in st.session_state:
+        st.session_state.processed = False
+    if "last_config_path" not in st.session_state:
+        st.session_state.last_config_path = None
+
+def get_or_create_processor(config_path):
+    """
+    Create the processor only if it's missing or the config changed.
+    """
+    if (
+        st.session_state.processor is None
+        or st.session_state.last_config_path != config_path
+    ):
+        st.session_state.processor = ITR1BatchProcessor(INPUT_DIR, config_path)
+        st.session_state.last_config_path = config_path
+        st.session_state.processed = False  # force re-process with new config
+    return st.session_state.processor
+
+# ----------------- UI ---------------------------------------------
 st.set_page_config(page_title="ITR Exporter", page_icon="📄", layout="centered")
 st.title("📄 Simple ITR PDF → Excel Exporter")
+
+ensure_session_keys()
 
 # Top utility row: delete INPUT + refresh to clear uploader selection
 u1, u2 = st.columns(2)
 with u1:
     if st.button("🗑️ Delete INPUT folder (clear all PDFs & Excels)"):
         clear_input_dir()
+        # Reset state when inputs are cleared
+        st.session_state.processor = None
+        st.session_state.processed = False
+        st.session_state.last_config_path = None
         st.success("INPUT folder cleared.")
+        st.rerun()  # ensure uploader resets
+
 with u2:
     if st.button("🔄 Refresh (clear upload selection)"):
+        # Soft reset only selections & flags
+        st.session_state.processed = False
+        st.success("Selection cleared.")
         st.rerun()
 
 # Config dropdown (simple)
@@ -79,11 +120,9 @@ if uploaded_files:
         save_path = os.path.join(INPUT_DIR, f.name)
         with open(save_path, "wb") as out:
             out.write(f.getbuffer())
+    # Mark data as needing processing after new uploads
+    st.session_state.processed = False
     st.success(f"Uploaded {len(uploaded_files)} file(s) into `{INPUT_DIR}`.")
-
-# Keep processor in session (minimal)
-if "processor" not in st.session_state:
-    st.session_state.processor = None
 
 st.divider()
 
@@ -92,19 +131,20 @@ if st.button("🔍 Extract & Preview"):
     if not config_path:
         st.error("Please select a config (e.g., ITR1).")
     else:
-        # progress bar (simple / non-intrusive)
         pbar = st.progress(0, text="Starting extraction...")
         try:
-            pbar.progress(30, text="Reading PDFs from INPUT...")
-            processor = ITR1BatchProcessor(INPUT_DIR, config_path)
-            pbar.progress(60, text="Processing all PDFs...")
-            processor.process_all()        # ✅ no logic change
-            st.session_state.processor = processor
+            pbar.progress(30, text="Initializing processor...")
+            processor = get_or_create_processor(config_path)
+
+            pbar.progress(60, text="Processing PDFs...")
+            processor.process_all()
+            st.session_state.processed = True
+
             pbar.progress(100, text="Extraction complete.")
 
             # Minimal preview (optional)
-            metadata_df = processor.metadata()  # ✅ as requested
             st.subheader("metadata_df")
+            metadata_df = processor.metadata()
             st.dataframe(metadata_df)
         except Exception as e:
             pbar.progress(0)
@@ -119,14 +159,17 @@ if st.button("📦 Export & Download (ZIP)"):
     else:
         pbar = st.progress(0, text="Preparing export...")
         try:
-            if st.session_state.processor is None:
-                pbar.progress(20, text="Initializing processor...")
-                st.session_state.processor = ITR1BatchProcessor(INPUT_DIR, config_path)
+            pbar.progress(20, text="Initializing processor...")
+            processor = get_or_create_processor(config_path)
+
+            # Process only if needed
+            if not st.session_state.processed:
                 pbar.progress(40, text="Processing PDFs...")
-                st.session_state.processor.process_all()
+                processor.process_all()
+                st.session_state.processed = True
 
             pbar.progress(60, text="Exporting Excel by PAN...")
-            st.session_state.processor.export_by_pan()  # ✅ unchanged
+            processor.export_by_pan()
 
             pbar.progress(80, text="Building ZIP...")
             zip_bytes, count = zip_excels_in_memory(INPUT_DIR)
@@ -145,3 +188,4 @@ if st.button("📦 Export & Download (ZIP)"):
                 )
         except Exception as e:
             pbar.progress(0)
+            st.error(f"Export failed: {e}")
