@@ -6,6 +6,9 @@ import glob
 import zipfile
 import shutil
 import streamlit as st
+import logging
+logging.getLogger('pdfminer.pdfinterp').setLevel(logging.ERROR)
+logging.getLogger('pdfminer.layout').setLevel(logging.ERROR)
 
 # ----------------- Ensure project root on sys.path -----------------
 ROOT = os.path.dirname(os.path.abspath(__file__))
