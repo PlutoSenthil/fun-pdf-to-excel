@@ -1,3 +1,4 @@
+
 import os
 import sys
 import io
@@ -5,9 +6,6 @@ import glob
 import zipfile
 import shutil
 import streamlit as st
-import logging
-logging.getLogger('pdfminer.pdfinterp').setLevel(logging.ERROR)
-logging.getLogger('pdfminer.layout').setLevel(logging.ERROR)
 
 # ----------------- Ensure project root on sys.path -----------------
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -62,12 +60,10 @@ def ensure_session_keys():
     """
     Initialize session_state keys used by the app.
     """
-    if "processor" not in st.session_state:
-        st.session_state.processor = None
-    if "processed" not in st.session_state:
-        st.session_state.processed = False
-    if "last_config_path" not in st.session_state:
-        st.session_state.last_config_path = None
+    st.session_state.setdefault("processor", None)
+    st.session_state.setdefault("processed", False)
+    st.session_state.setdefault("last_config_path", None)
+    st.session_state.setdefault("has_preview", False)  # indicates preview is shown
 
 def get_or_create_processor(config_path):
     """
@@ -79,7 +75,8 @@ def get_or_create_processor(config_path):
     ):
         st.session_state.processor = ITR1BatchProcessor(INPUT_DIR, config_path)
         st.session_state.last_config_path = config_path
-        st.session_state.processed = False  # force re-process with new config
+        st.session_state.processed = False
+        st.session_state.has_preview = False
     return st.session_state.processor
 
 # ----------------- UI ---------------------------------------------
@@ -93,17 +90,17 @@ u1, u2 = st.columns(2)
 with u1:
     if st.button("🗑️ Delete INPUT folder (clear all PDFs & Excels)"):
         clear_input_dir()
-        # Reset state when inputs are cleared
         st.session_state.processor = None
         st.session_state.processed = False
+        st.session_state.has_preview = False
         st.session_state.last_config_path = None
         st.success("INPUT folder cleared.")
-        st.rerun()  # ensure uploader resets
+        st.rerun()
 
 with u2:
     if st.button("🔄 Refresh (clear upload selection)"):
-        # Soft reset only selections & flags
         st.session_state.processed = False
+        st.session_state.has_preview = False
         st.success("Selection cleared.")
         st.rerun()
 
@@ -122,13 +119,13 @@ if uploaded_files:
         save_path = os.path.join(INPUT_DIR, f.name)
         with open(save_path, "wb") as out:
             out.write(f.getbuffer())
-    # Mark data as needing processing after new uploads
     st.session_state.processed = False
+    st.session_state.has_preview = False
     st.success(f"Uploaded {len(uploaded_files)} file(s) into `{INPUT_DIR}`.")
 
 st.divider()
 
-# --- Extract & Preview (with progress bar) ---
+# --- Extract & Preview (with progress bar) + Export button below ---
 if st.button("🔍 Extract & Preview"):
     if not config_path:
         st.error("Please select a config (e.g., ITR1).")
@@ -147,31 +144,42 @@ if st.button("🔍 Extract & Preview"):
             # Minimal preview (optional)
             st.subheader("metadata_df")
             metadata_df = processor.metadata()
-            st.dataframe(metadata_df)
+            st.dataframe(metadata_df, use_container_width=True)
+            st.session_state.has_preview = True
         except Exception as e:
             pbar.progress(0)
+            st.session_state.has_preview = False
             st.error(f"Extraction failed: {e}")
 
-st.divider()
-
-# --- Export & Download (ZIP of Excel) with progress bar ---
-if st.button("📦 Export & Download (ZIP)"):
-    if not config_path:
-        st.error("Please select a config (e.g., ITR1).")
-    else:
+# Show Export button only if we have a preview or already processed data
+if st.session_state.has_preview or st.session_state.processed:
+    st.divider()
+    st.write("Ready to export the processed data to Excel and download as ZIP:")
+    if st.button("📦 Export & Download (ZIP)"):
         pbar = st.progress(0, text="Preparing export...")
         try:
             pbar.progress(20, text="Initializing processor...")
             processor = get_or_create_processor(config_path)
 
-            # Process only if needed
+            # (Optional) safeguard: if not processed, process now
             if not st.session_state.processed:
                 pbar.progress(40, text="Processing PDFs...")
                 processor.process_all()
                 st.session_state.processed = True
 
             pbar.progress(60, text="Exporting Excel by PAN...")
-            processor.export_by_pan()
+            try:
+                processor.export_by_pan()
+            except ModuleNotFoundError as e:
+                if "xlsxwriter" in str(e):
+                    st.error(
+                        "Export failed: missing dependency 'xlsxwriter'. "
+                        "Run: pip install xlsxwriter\n"
+                        "Or modify export_by_pan() to use pandas.ExcelWriter(engine='openpyxl')."
+                    )
+                    st.stop()
+                else:
+                    raise
 
             pbar.progress(80, text="Building ZIP...")
             zip_bytes, count = zip_excels_in_memory(INPUT_DIR)

@@ -163,7 +163,7 @@ class ITR1Sections(PDFPipeline):
     # ---------------------------------------------------------
     def build_all_sections(self):
         dfs = {}
-        hdr = ["Acknowledgement", self.ack, "Date of Filing", self.dof, "PAN", self.pan]
+        hdr = [ "Date of Filing"+str(self.dof),"Acknowledgement"+str(self.ack), "PAN"+str(self.pan)]
 
         for name, meta in self.sections.items():
             start, end = meta["start"], meta["end"]
