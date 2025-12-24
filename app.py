@@ -59,53 +59,21 @@ def clear_input_dir():
     os.makedirs(INPUT_DIR, exist_ok=True)
 
 def ensure_session_keys():
-    """
-    Initialize session_state keys used by the app.
-    """
-    if "processor" not in st.session_state:
-        st.session_state.processor = None
-    if "processed" not in st.session_state:
-        st.session_state.processed = False
-    if "last_config_path" not in st.session_state:
-        st.session_state.last_config_path = None
+    if "uploader_key" not in st.session_state:
+        st.session_state.uploader_key = 0
 
-def get_or_create_processor(config_path):
-    """
-    Create the processor only if it's missing or the config changed.
-    """
-    if (
-        st.session_state.processor is None
-        or st.session_state.last_config_path != config_path
-    ):
-        st.session_state.processor = ITR1BatchProcessor(INPUT_DIR, config_path)
-        st.session_state.last_config_path = config_path
-        st.session_state.processed = False  # force re-process with new config
-    return st.session_state.processor
+def reset_uploader():
+    st.session_state.uploader_key += 1
+    clear_input_dir()
 
 # ----------------- UI ---------------------------------------------
-st.set_page_config(page_title="ITR Exporter", page_icon="📄", layout="centered")
+st.set_page_config(page_title="ITR Exporter", layout="centered")
 st.title("📄 Simple ITR PDF → Excel Exporter")
 
 ensure_session_keys()
 
-# Top utility row: delete INPUT + refresh to clear uploader selection
-u1, u2 = st.columns(2)
-with u1:
-    if st.button("🗑️ Delete INPUT folder (clear all PDFs & Excels)"):
-        clear_input_dir()
-        # Reset state when inputs are cleared
-        st.session_state.processor = None
-        st.session_state.processed = False
-        st.session_state.last_config_path = None
-        st.success("INPUT folder cleared.")
-        st.rerun()  # ensure uploader resets
-
-with u2:
-    if st.button("🔄 Refresh (clear upload selection)"):
-        # Soft reset only selections & flags
-        st.session_state.processed = False
-        st.success("Selection cleared.")
-        st.rerun()
+st.button("🔄 Refresh", on_click=reset_uploader)
+# st.rerun()
 
 # Config dropdown (simple)
 config_map = get_config_map()
@@ -116,14 +84,14 @@ selected_form = st.selectbox(
 config_path = config_map.get(selected_form)
 
 # Upload PDFs (saved into INPUT)
-uploaded_files = st.file_uploader("Upload PDFs", type=["pdf"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload PDFs", type=["pdf"], 
+            accept_multiple_files=True,
+            key=f"pdf_uploader_{st.session_state.uploader_key}")
 if uploaded_files:
     for f in uploaded_files:
         save_path = os.path.join(INPUT_DIR, f.name)
         with open(save_path, "wb") as out:
             out.write(f.getbuffer())
-    # Mark data as needing processing after new uploads
-    st.session_state.processed = False
     st.success(f"Uploaded {len(uploaded_files)} file(s) into `{INPUT_DIR}`.")
 
 st.divider()
@@ -136,7 +104,7 @@ if st.button("📦 Export & Download (ZIP)"):
         pbar = st.progress(0, text="Preparing export...")
         try:
             pbar.progress(20, text="Initializing processor...")
-            processor = get_or_create_processor(config_path)
+            processor = ITR1BatchProcessor(INPUT_DIR, config_path)
 
             pbar.progress(40, text="Processing PDFs...")
             processor.process_all()
