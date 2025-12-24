@@ -108,8 +108,7 @@ if st.button("📦 Export & Download (ZIP)"):
 
             pbar.progress(40, text="Processing PDFs...")
             processor.process_all()
-            st.session_state.processed = True
-            
+                        
             # Minimal preview (optional)
             pbar.progress(50, text="metadata_df")
             metadata_df = processor.metadata()

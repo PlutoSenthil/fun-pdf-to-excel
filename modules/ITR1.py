@@ -254,7 +254,8 @@ class ITR1BatchProcessor:
                 }
             )
         df = pd.DataFrame(rows)
-        df["dof"] = pd.to_datetime(df["dof"], errors="coerce", dayfirst=True)
+        df["dof"] = pd.to_datetime(df["dof"], errors="coerce", dayfirst=True).dt.date
+        df = df.sort_values(by=["pan", "dof"], ascending=[True, True])
         return df
 
     # ---------------------------------------------------------
