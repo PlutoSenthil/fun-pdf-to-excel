@@ -1,0 +1,12 @@
+{
+    "PART_B": {
+        "table_start_ptr": "SCHEDULE SALARY - DETAILS OF INCOME FROM SALARY",
+        "hdr_row_map": [
+            "B1"
+        ],
+        "ftr_row_map": "Gross Total Income",
+        "indentation_skip": [
+            "B"
+        ]
+    }
+}

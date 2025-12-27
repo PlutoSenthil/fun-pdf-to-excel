@@ -46,6 +46,7 @@ class ITR1Sections(PDFPipeline):
         # Extract metadata
         self.ack, self.dof, self.pan = self.extract_metadata()
         self.save_debug("metadata", {"ack": self.ack, "dof": self.dof, "pan": self.pan})
+        
 
         # Build patterns
         self.table_start_ptr = {k: v.get("table_start_ptr") for k, v in self.config.items()}
@@ -80,8 +81,8 @@ class ITR1Sections(PDFPipeline):
             r"Acknowledgement Number\s*:\s*(\d+).*?Date of Filing\s*:\s*([\w\-]+)",
             re.I | re.S,
         )
-        pan_pat = re.compile(r"\(A1\)\s*PAN\s+(.+?)\s*\(A2\)", re.I | re.S)
-
+        # pan_pat = re.compile(r"\(A1\)\s*PAN\s+(.+?)\s*\(A2\)", re.I | re.S)
+        pan_pat = re.compile(r"PAN\s*([A-Z0-9]{10})", re.I)
         ack = dof = pan = None
 
         for row in self.extracted:
